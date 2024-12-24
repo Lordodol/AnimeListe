@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -9,7 +9,18 @@
 </head>
 
 <body>
-    <div class="container">
+    <div id="codePrompt" class="modal" style="display:block;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Code d'accès requis</h2>
+            <p>Veuillez entrer le code d'accès pour accéder à l'application.</p>
+            <input type="password" id="codeInput" placeholder="Entrez le code">
+            <button type="button" onclick="togglePassword()">Afficher / Masquer</button>
+            <button onclick="validateCode()">Valider</button>
+        </div>
+    </div>
+
+    <div class="container" style="display:none;">
         <h1>AnimeListe</h1>
 
         <!-- Navigation -->
@@ -20,7 +31,7 @@
         </nav>
 
         <!-- Interface d'ajout d'anime -->
-        <section id="addAnimeSection" class="card">
+        <section id="addAnimeSection" class="card" style="display: none;">
             <h2>Ajouter un Anime</h2>
             <div class="form-group">
                 <input type="text" id="animeInput" placeholder="Entrez le nom de l'anime" required>
@@ -63,7 +74,7 @@
         </section>
 
         <!-- Interface d'affichage de la liste -->
-        <section id="animeListSection" style="display: none;">
+        <section id="animeListSection">
             <h2>Liste des Anime</h2>
             <div class="dropdown">
                 <button class="dropbtn">Trier</button>
@@ -134,62 +145,64 @@
             </table>
         </section>
 
-    <!-- Fenêtre modale -->
-    <div id="modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modalImageContainer" style="text-align: center;">
-                <img id="animeImageDisplay" src="" alt="Image de l'Anime" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;">
-            </div>
-            <table id="modalTable" style="width: 100%; border-collapse: collapse;">
-                <tbody>
-                    <tr>
-                        <th>Titre</th>
-                        <td id="animeTitle"></td>
-                    </tr>
-                    <tr>
-                        <th>Type</th>
-                        <td id="animeTypeDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Statut</th>
-                        <td id="animeStatusDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Nombre d'épisodes</th>
-                        <td id="animeEpisodesDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Graphismes</th>
-                        <td id="animeGraphicsRatingDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Personnages</th>
-                        <td id="animeCharactersRatingDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Histoire</th>
-                        <td id="animeStoryRatingDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Émotion</th>
-                        <td id="animeEmotionRatingDisplay"></td>
-                    </tr>
-                    <tr>
-                        <th>Évaluation Générale</th>
-                        <td id="animeGeneralRatingDisplay"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div style="text-align: center; margin-top: 20px;">
-                <button id="editButton" style="margin-right: 10px;" onclick="enableEditing()">Modifier</button>
-                <button id="saveButton" style="display:none;" onclick="saveChanges()">Sauvegarder</button>
-                <button id="deleteButton" style="display:none;" onclick="deleteAnime()">Supprimer</button>
+        <!-- Fenêtre modale -->
+        <div id="modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div id="modalImageContainer" style="text-align: center;">
+                    <img id="animeImageDisplay" src="" alt="Image de l'Anime"
+                        style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;">
+                </div>
+                <table id="modalTable" style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        <tr>
+                            <th>Titre</th>
+                            <td id="animeTitle"></td>
+                        </tr>
+                        <tr>
+                            <th>Type</th>
+                            <td id="animeTypeDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Statut</th>
+                            <td id="animeStatusDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Nombre d'épisodes</th>
+                            <td id="animeEpisodesDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Graphismes</th>
+                            <td id="animeGraphicsRatingDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Personnages</th>
+                            <td id="animeCharactersRatingDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Histoire</th>
+                            <td id="animeStoryRatingDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Émotion</th>
+                            <td id="animeEmotionRatingDisplay"></td>
+                        </tr>
+                        <tr>
+                            <th>Évaluation Générale</th>
+                            <td id="animeGeneralRatingDisplay"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="editButton" style="margin-right: 10px;" onclick="enableEditing()">Modifier</button>
+                    <button id="saveButton" style="display:none;" onclick="saveChanges()">Sauvegarder</button>
+                    <button id="deleteButton" style="display:none;" onclick="deleteAnime()">Supprimer</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="script.js"></script>
+        <script src="script.js"></script>
+    </div>
 </body>
 
 </html>
