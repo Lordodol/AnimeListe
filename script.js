@@ -105,7 +105,12 @@ function renderAnimeList() {
     animeList.forEach((anime, index) => {
         const li = document.createElement('li');
         li.textContent = anime.name;
-        
+
+        // Ajouter la classe 'golden' si la note générale est 9 ou plus
+        if (anime.ratings.general >= 9) {
+            li.classList.add('golden');
+        }
+
         // Écouter le clic pour afficher la fenêtre modale  
         li.addEventListener('click', () => {
             openModal(index); // Passer l'index de l'anime  
@@ -285,14 +290,14 @@ function updateStatistics() {
     const totalEpisodes = animeList.reduce((total, anime) => {
         return total + (anime.type === 'film' ? 1 : anime.episodes);
     }, 0);
-    
+
     const totalWatchTimeMinutes = animeList.reduce((total, anime) => {
         return total + (anime.type === 'film' ? 120 : anime.episodes * averageEpisodeDuration);
     }, 0);
-    
+
     const totalWatchTimeHours = (totalWatchTimeMinutes / 60).toFixed(2);
     const totalWatchTimeDays = (totalWatchTimeMinutes / 1440).toFixed(2);
-    
+
     // Affichage des statistiques  
     document.getElementById('countSeries').textContent = countSeries;
     document.getElementById('countFilms').textContent = countFilms;
@@ -309,7 +314,7 @@ function updateStatistics() {
         emotion: 0,
         general: 0  
     };
-    
+
     animeList.forEach(anime => {
         totalRatings.graphics += parseFloat(anime.ratings.graphics);
         totalRatings.characters += parseFloat(anime.ratings.characters);
@@ -319,7 +324,7 @@ function updateStatistics() {
     });
 
     const animeCount = animeList.length;
-    
+
     // Calculer les moyennes en évitant la division par zéro  
     const averageGraphics = animeCount > 0 ? (totalRatings.graphics / animeCount).toFixed(2) : 0;
     const averageCharacters = animeCount > 0 ? (totalRatings.characters / animeCount).toFixed(2) : 0;
@@ -361,3 +366,18 @@ function sortAnime(criteria) {
 
 // Charger les anime au démarrage  
 loadAnime();
+
+// Code de validation
+function validateCode() {
+    const codeInput = document.getElementById('codeInput');
+    const correctCode = 'Pokemonflifli30!';
+
+    if (codeInput.value === correctCode) {
+        // Si le code est correct, masquer le prompt et afficher l'application
+        document.getElementById('codePrompt').style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+    } else {
+        // Si le code est incorrect, afficher un message d'erreur
+        alert('Code incorrect. Veuillez réessayer.');
+    }
+}
