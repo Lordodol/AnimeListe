@@ -1,4 +1,4 @@
-let animeList = [];
+animeList = [];
 const averageEpisodeDuration = 20; // Durée moyenne d'un épisode en minutes  
 let currentAnimeIndex = null;
 
@@ -106,7 +106,7 @@ function renderAnimeList() {
         const li = document.createElement('li');
         li.textContent = anime.name;
 
-        // Ajouter la classe 'golden' si la note générale est 9 ou plus
+        // Ajouter la classe 'golden' si la note générale est 9 ou plus  
         if (anime.ratings.general >= 9) {
             li.classList.add('golden');
         }
@@ -361,23 +361,43 @@ function sortAnime(criteria) {
             animeList.sort((a, b) => b.ratings.general - a.ratings.general); // Tri par général (décroissant)
             break;
     }
-    renderAnimeList(); // Mettre à jour l'affichage de la liste après le tri  
+    renderAnimeList(); // Rendre la liste mise à jour après le tri  
 }
 
-// Charger les anime au démarrage  
-loadAnime();
+// Fonction pour exporter la liste des anime en JSON  
+function exportAnimeList() {
+    const dataStr = JSON.stringify(animeList, null, 2); // Convertir les données en JSON  
+    const blob = new Blob([dataStr], { type: 'application/json' }); // Créer un blob  
+    const url = URL.createObjectURL(blob); // Créer un lien vers le blob
 
-// Code de validation
-function validateCode() {
-    const codeInput = document.getElementById('codeInput');
-    const correctCode = 'Pokemonflifli30!';
-
-    if (codeInput.value === correctCode) {
-        // Si le code est correct, masquer le prompt et afficher l'application
-        document.getElementById('codePrompt').style.display = 'none';
-        document.querySelector('.container').style.display = 'block';
-    } else {
-        // Si le code est incorrect, afficher un message d'erreur
-        alert('Code incorrect. Veuillez réessayer.');
-    }
+    const a = document.createElement('a'); // Créer un élément de lien  
+    a.href = url;
+    a.download = 'anime_list.json'; // Nom du fichier à télécharger  
+    document.body.appendChild(a); // Ajouter le lien au DOM  
+    a.click(); // Simuler un clic pour déclencher le téléchargement  
+    document.body.removeChild(a); // Supprimer le lien  
+    URL.revokeObjectURL(url); // Libérer l'URL  
 }
+
+// Fonction pour charger la liste d'anime depuis un fichier JSON  
+function loadAnimeFromFile(event) {
+    const file = event.target.files[0]; // Récupérer le fichier sélectionné  
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result); // Convertir le contenu du fichier en JSON  
+            animeList = data; // Mettre à jour la liste des anime  
+            saveAnime(); // Sauvegarder la nouvelle liste dans localStorage  
+            renderAnimeList(); // Rendre à jour l'affichage de la liste  
+            updateStatistics(); // Mettre à jour les statistiques  
+        } catch (error) {
+            alert("Erreur lors du chargement du fichier : " + error.message);
+        }
+    };
+
+    reader.readAsText(file); // Lire le fichier comme texte  
+}
+
+// Initialiser le chargement des anime au démarrage  
+window.onload = loadAnime;
