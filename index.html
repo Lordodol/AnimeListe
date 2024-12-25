@@ -81,61 +81,61 @@
 
         <!-- Interface des statistiques -->
         <section id="statisticsSection" style="display: none;">
-            <h2>Statistiques</h2>
-            <table id="statisticsTable">
-                <tr>
-                    <th>Statistique</th>
-                    <th>Valeur</th>
-                </tr>
-                <tr>
-                    <td>Nombre de séries vues</td>
-                    <td><span id="countSeries">0</span></td>
-                </tr>
-                <tr>
-                    <td>Nombre de films vus</td>
-                    <td><span id="countFilms">0</span></td>
-                </tr>
-                <tr>
-                    <td>Nombre total d'épisodes</td>
-                    <td><span id="totalEpisodes">0</span></td>
-                </tr>
-                <tr>
-                    <td>Temps total de visionnage (minutes)</td>
-                    <td><span id="totalWatchTimeMinutes">0</span></td>
-                </tr>
-                <tr>
-                    <td>Temps total de visionnage (heures)</td>
-                    <td><span id="totalWatchTimeHours">0</span></td>
-                </tr>
-                <tr>
-                    <td>Temps total de visionnage (jours)</td>
-                    <td><span id="totalWatchTimeDays">0</span></td>
-                </tr>
-                <tr>
-                    <td>Moyenne des graphismes</td>
-                    <td><span id="averageGraphics">0</span></td>
-                </tr>
-                <tr>
-                    <td>Moyenne des personnages</td>
-                    <td><span id="averageCharacters">0</span></td>
-                </tr>
-                <tr>
-                    <td>Moyenne de l'histoire</td>
-                    <td><span id="averageStory">0</span></td>
-                </tr>
-                <tr>
-                    <td>Moyenne de l'émotion</td>
-                    <td><span id="averageEmotion">0</span></td>
-                </tr>
-                <tr>
-                    <td>Moyenne générale</td>
-                    <td><span id="averageGeneral">0</span></td>
-                </tr>
-            </table>
-            <button onclick="exportAnimeList()">Exporter la liste des anime</button>
-            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadAnimeFromFile(event)">
-            <button onclick="document.getElementById('fileInput').click()">Charger la liste des anime</button>
-        </section>
+    <h2>Statistiques</h2>
+    <table id="statisticsTable">
+        <tr>
+            <th>Statistique</th>
+            <th>Valeur</th>
+        </tr>
+        <tr>
+            <td>Nombre de séries vues</td>
+            <td><span id="countSeries">0</span></td>
+        </tr>
+        <tr>
+            <td>Nombre de films vus</td>
+            <td><span id="countFilms">0</span></td>
+        </tr>
+        <tr>
+            <td>Nombre total d'épisodes</td>
+            <td><span id="totalEpisodes">0</span></td>
+        </tr>
+        <tr>
+            <td>Temps total de visionnage (minutes)</td>
+            <td><span id="totalWatchTimeMinutes">0</span></td>
+        </tr>
+        <tr>
+            <td>Temps total de visionnage (heures)</td>
+            <td><span id="totalWatchTimeHours">0</span></td>
+        </tr>
+        <tr>
+            <td>Temps total de visionnage (jours)</td>
+            <td><span id="totalWatchTimeDays">0</span></td>
+        </tr>
+        <tr>
+            <td>Moyenne des graphismes</td>
+            <td><span id="averageGraphics">0</span></td>
+        </tr>
+        <tr>
+            <td>Moyenne des personnages</td>
+            <td><span id="averageCharacters">0</span></td>
+        </tr>
+        <tr>
+            <td>Moyenne de l'histoire</td>
+            <td><span id="averageStory">0</span></td>
+        </tr>
+        <tr>
+            <td>Moyenne de l'émotion</td>
+            <td><span id="averageEmotion">0</span></td>
+        </tr>
+        <tr>
+            <td>Moyenne générale</td>
+            <td><span id="averageGeneral">0</span></td>
+        </tr>
+    </table>
+    <button class="button-spacing" onclick="exportAnimeList()">Exporter la liste des anime</button>
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadAnimeFromFile(event)">
+    <button class="button-spacing" onclick="document.getElementById('fileInput').click()">Charger la liste des anime</button>
+</section>
 
         <!-- Fenêtre modale -->
         <div id="modal" class="modal" style="display:none;">
