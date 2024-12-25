@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -9,18 +9,7 @@
 </head>
 
 <body>
-    <div id="codePrompt" class="modal" style="display:block;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Code d'accès requis</h2>
-            <p>Veuillez entrer le code d'accès pour accéder à l'application.</p>
-            <input type="password" id="codeInput" placeholder="Entrez le code">
-            <button type="button" onclick="togglePassword()">Afficher / Masquer</button>
-            <button onclick="validateCode()">Valider</button>
-        </div>
-    </div>
-
-    <div class="container" style="display:none;">
+    <div class="container">
         <h1>AnimeListe</h1>
 
         <!-- Navigation -->
@@ -143,6 +132,9 @@
                     <td><span id="averageGeneral">0</span></td>
                 </tr>
             </table>
+            <button onclick="exportAnimeList()">Exporter la liste des anime</button>
+            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadAnimeFromFile(event)">
+            <button onclick="document.getElementById('fileInput').click()">Charger la liste des anime</button>
         </section>
 
         <!-- Fenêtre modale -->
