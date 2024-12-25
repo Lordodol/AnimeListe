@@ -223,3 +223,7 @@ select:focus {
 .golden {
     color: gold; 
 }
+
+.button-spacing {
+    margin-top: 20px; /* Ajustez la valeur selon vos besoins */
+}
