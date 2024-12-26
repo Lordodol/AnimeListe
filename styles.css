@@ -5,7 +5,12 @@ body {
     margin: 0;
     padding: 0;
     background-image: url("https://i.postimg.cc/K8nWxckt/jpg.jpg"); /* Image d'arrière-plan */
-    background-size: cover; /* Ajuster la taille de l'image pour qu'elle couvre tout l'écran */
+    background-size: cover; /* Couvre tout l'espace disponible */
+    background-repeat: no-repeat; /* Pas de répétition de l'image */
+    background-position: center; /* Centre l'image */
+    background-attachment: fixed; /* Rendre l'image fixe lors du défilement */
+    min-height: 100vh; /* Assure que le body prend au moins la hauteur de la vue */
+    margin: 0; 
 }
 
 .container {
