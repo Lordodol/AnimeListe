@@ -36,7 +36,6 @@ function showStatistics() {
 
 function addAnime() {
     const animeInput = document.getElementById('animeInput');
-    const animeImage = document.getElementById('animeImage').files[0];
     const nbEpisodes = document.getElementById('nbEpisodes').value;
     const animeType = document.getElementById('animeType').value;
     const animeStatus = document.getElementById('animeStatus').value;
@@ -45,6 +44,12 @@ function addAnime() {
     const storyRating = document.getElementById('storyRating').value;
     const emotionRating = document.getElementById('emotionRating').value;
     const generalRating = document.getElementById('generalRating').value;
+
+    // Vérifier si tous les champs sont remplis  
+    if (!animeInput.value.trim() || !nbEpisodes || !animeType || !animeStatus || !graphicsRating || !charactersRating || !storyRating || !emotionRating || !generalRating) {
+        alert("Veuillez remplir tous les champs avant d'ajouter un anime."); // Message d'erreur  
+        return; // Sortir de la fonction si un champ est vide  
+    }
 
     // Validation des notes  
     const ratings = [graphicsRating, charactersRating, storyRating, emotionRating, generalRating];
@@ -55,32 +60,24 @@ function addAnime() {
         }
     }
 
-    if (animeInput.value.trim() && animeImage) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const anime = {
-                name: animeInput.value.trim(),
-                image: event.target.result,
-                episodes: parseInt(nbEpisodes),
-                type: animeType,
-                status: animeStatus,
-                ratings: {
-                    graphics: parseFloat(graphicsRating),
-                    characters: parseFloat(charactersRating),
-                    story: parseFloat(storyRating),
-                    emotion: parseFloat(emotionRating),
-                    general: parseFloat(generalRating)  
-                }
-            };
+    const anime = {
+        name: animeInput.value.trim(),
+        episodes: parseInt(nbEpisodes),
+        type: animeType,
+        status: animeStatus,
+        ratings: {
+            graphics: parseFloat(graphicsRating),
+            characters: parseFloat(charactersRating),
+            story: parseFloat(storyRating),
+            emotion: parseFloat(emotionRating),
+            general: parseFloat(generalRating)
+        }
+    };
 
-            animeList.push(anime);
-            saveAnime(); // Sauvegarder l'anime dans le localStorage  
-            clearInputs();
-            showAnimeList(); // Afficher la liste des anime après ajout  
-            exportAnimeList(); // Télécharger le fichier mis à jour  
-        };
-        reader.readAsDataURL(animeImage);
-    }
+    animeList.push(anime);
+    saveAnime(); // Sauvegarder l'anime dans le localStorage  
+    clearInputs();
+    showAnimeList(); // Afficher la liste des anime après ajout  
 }
 
 function saveAnime() {
