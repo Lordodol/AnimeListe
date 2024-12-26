@@ -1,6 +1,7 @@
-animeList = [];
+let animeList = [];
 const averageEpisodeDuration = 20; // Durée moyenne d'un épisode en minutes  
 let currentAnimeIndex = null;
+let sortCriteria = ''; // Variable pour stocker le critère de tri
 
 // Charger les anime du localStorage au démarrage  
 function loadAnime() {
@@ -76,6 +77,7 @@ function addAnime() {
             saveAnime(); // Sauvegarder l'anime dans le localStorage  
             clearInputs();
             showAnimeList(); // Afficher la liste des anime après ajout  
+            exportAnimeList(); // Télécharger le fichier mis à jour  
         };
         reader.readAsDataURL(animeImage);
     }
@@ -104,7 +106,24 @@ function renderAnimeList() {
 
     animeList.forEach((anime, index) => {
         const li = document.createElement('li');
-        li.textContent = anime.name;
+        li.textContent = `${anime.name} `; // Afficher le nom de l'anime
+
+        // Afficher uniquement la note à droite en fonction du critère de tri  
+        let ratingDisplay = '';
+
+        if (sortCriteria === 'graphics') {
+            ratingDisplay = `${anime.ratings.graphics}`; // Afficher uniquement la note des graphismes  
+        } else if (sortCriteria === 'characters') {
+            ratingDisplay = `${anime.ratings.characters}`; // Afficher uniquement la note des personnages  
+        } else if (sortCriteria === 'story') {
+            ratingDisplay = `${anime.ratings.story}`; // Afficher uniquement la note de l'histoire  
+        } else if (sortCriteria === 'emotion') {
+            ratingDisplay = `${anime.ratings.emotion}`; // Afficher uniquement la note de l'émotion  
+        } else if (sortCriteria === 'general') {
+            ratingDisplay = `${anime.ratings.general}`; // Afficher uniquement la note générale  
+        }
+
+        li.innerHTML += `<span class="rating">${ratingDisplay}</span>`; // Ajouter la note dans un span
 
         // Ajouter la classe 'golden' si la note générale est 9 ou plus  
         if (anime.ratings.general >= 9) {
@@ -269,6 +288,7 @@ function saveChanges() {
     closeModal(); // Fermer la fenêtre modale  
     renderAnimeList(); // Réafficher la liste mise à jour  
     updateStatistics(); // Mettre à jour les statistiques  
+    exportAnimeList(); // Télécharger le fichier mis à jour  
 }
 
 function deleteAnime() {
@@ -280,6 +300,7 @@ function deleteAnime() {
         closeModal(); // Fermer la fenêtre modale  
         renderAnimeList(); // Réafficher la liste mise à jour  
         updateStatistics(); // Mettre à jour les statistiques  
+        exportAnimeList(); // Télécharger le fichier mis à jour  
     }
 }
 
@@ -341,6 +362,8 @@ function updateStatistics() {
 
 // Fonction de tri par critère  
 function sortAnime(criteria) {
+    sortCriteria = criteria; // Mettez à jour le critère de tri
+
     switch(criteria) {
         case 'alpha':
             animeList.sort((a, b) => a.name.localeCompare(b.name)); // Tri alphabetique  
@@ -364,39 +387,62 @@ function sortAnime(criteria) {
     renderAnimeList(); // Rendre la liste mise à jour après le tri  
 }
 
-// Fonction pour exporter la liste des anime en JSON  
+// Fonction pour exporter la liste des anime en fichier Excel  
 function exportAnimeList() {
-    const dataStr = JSON.stringify(animeList, null, 2); // Convertir les données en JSON  
-    const blob = new Blob([dataStr], { type: 'application/json' }); // Créer un blob  
-    const url = URL.createObjectURL(blob); // Créer un lien vers le blob
+    const worksheet = XLSX.utils.json_to_sheet(animeList.map(anime => ({
+        'Titre': anime.name,
+        'Type': anime.type,
+        'Statut': anime.status,
+        'Épisodes': anime.episodes,
+        'Graphismes': anime.ratings.graphics,
+        'Personnages': anime.ratings.characters,
+        'Histoire': anime.ratings.story,
+        'Émotion': anime.ratings.emotion,
+        'Général': anime.ratings.general  
+    })));
 
-    const a = document.createElement('a'); // Créer un élément de lien  
-    a.href = url;
-    a.download = 'anime_list.json'; // Nom du fichier à télécharger  
-    document.body.appendChild(a); // Ajouter le lien au DOM  
-    a.click(); // Simuler un clic pour déclencher le téléchargement  
-    document.body.removeChild(a); // Supprimer le lien  
-    URL.revokeObjectURL(url); // Libérer l'URL  
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Liste des Anime");
+
+    // Générer le fichier Excel et le télécharger  
+    XLSX.writeFile(workbook, 'anime_list.xlsx');
 }
 
-// Fonction pour charger la liste d'anime depuis un fichier JSON  
+// Fonction pour charger la liste d'anime depuis un fichier Excel  
 function loadAnimeFromFile(event) {
     const file = event.target.files[0]; // Récupérer le fichier sélectionné  
     const reader = new FileReader();
 
     reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result); // Convertir le contenu du fichier en JSON  
-            animeList = data; // Mettre à jour la liste des anime  
-            saveAnime(); // Sauvegarder la nouvelle liste dans localStorage  
-            renderAnimeList(); // Rendre à jour l'affichage de la liste  
-            updateStatistics(); // Mettre à jour les statistiques  
-        } catch (error) {
-            alert("Erreur lors du chargement du fichier : " + error.message);
-        }
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Assume que la première feuille de calcul contient nos anime  
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Convertir le JSON en format attendu pour animeList  
+        animeList = json.slice(1).map(row => ({
+            name: row[0],
+            type: row[1],
+            status: row[2],
+            episodes: row[3],
+            ratings: {
+                graphics: row[4],
+                characters: row[5],
+                story: row[6],
+                emotion: row[7],
+                general: row[8]
+            },
+            image: '', // Vous pouvez ajouter une logique pour gérer les images ici  
+        }));
+
+        saveAnime(); // Sauvegarder la nouvelle liste dans localStorage  
+        renderAnimeList(); // Rendre à jour l'affichage de la liste  
+        updateStatistics(); // Mettre à jour les statistiques  
     };
 
-    reader.readAsText(file); // Lire le fichier comme texte  
+    reader.readAsArrayBuffer(file); // Lire le fichier comme un buffer  
 }
 
 // Initialiser le chargement des anime au démarrage  
