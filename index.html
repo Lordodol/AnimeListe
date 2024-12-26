@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnimeListe</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script> <!-- Ajout de la bibliothèque -->
 </head>
 
 <body>
@@ -132,9 +133,9 @@
                     <td><span id="averageGeneral">0</span></td>
                 </tr>
             </table>
-            <button onclick="exportAnimeList()">Exporter la liste des anime</button>
-            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadAnimeFromFile(event)">
-            <button onclick="document.getElementById('fileInput').click()">Charger la liste des anime</button>
+            <button class="button-spacing" onclick="exportAnimeList()">Exporter la liste des anime</button>
+            <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="loadAnimeFromFile(event)">
+            <button class="button-spacing" onclick="document.getElementById('fileInput').click()">Charger la liste des anime</button>
         </section>
 
         <!-- Fenêtre modale -->
