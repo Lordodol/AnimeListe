@@ -241,3 +241,15 @@ select:focus {
     border-style: solid; /* Style de la bordure */
 }
 
+#importExportSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrer les boutons */
+}
+
+button {
+    width: 200px; /* Largeur uniforme pour tous les boutons */
+    padding: 10px; /* Espacement intérieur pour un meilleur look */
+    margin: 5px; /* Espacement entre les boutons */
+    cursor: pointer; /* Curseur de pointeur pour les boutons */
+}
