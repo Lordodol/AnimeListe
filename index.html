@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnimeListe</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script> <!-- Ajout de la bibliothèque -->
 </head>
 
 <body>
@@ -18,7 +18,6 @@
             <button onclick="showAddAnime()">Ajouter Anime</button>
             <button onclick="showAnimeList()">Liste des Anime</button>
             <button onclick="showStatistics()">Statistiques</button>
-            <button onclick="showDescription()">Description</button> <!-- Nouveau bouton -->
         </nav>
 
         <!-- Interface d'ajout d'anime -->
@@ -135,31 +134,6 @@
             <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="loadAnimeFromFile(event)">
             <button class="button-spacing" onclick="document.getElementById('fileInput').click()">Charger la liste des anime</button>
         </section>
-
-        <!-- Interface de description -->
-        <div id="descriptionSection" style="padding: 20px;">
-            <h2>Détails de l'Anime</h2>
-            
-            <!-- Conteneur pour la liste déroulante d'animes -->
-            <div id="animeContainer" style="height: 330px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;">
-                <ul id="animeDropdown" style="list-style-type: none; padding: 0;">
-                    <!-- Les éléments d'anime seront ajoutés ici via JavaScript -->
-                </ul>
-            </div>
-            
-            <!-- Tableau pour afficher les détails de l'anime -->
-            <table id="animeDetailsTable" style="display: none; width: 100%; margin-top: 20px; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Propriété</th>
-                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Valeur</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Les lignes seront ajoutées ici via JavaScript -->
-                </tbody>
-            </table>
-        </div>
 
         <!-- Fenêtre modale -->
         <div id="modal" class="modal" style="display:none;">
