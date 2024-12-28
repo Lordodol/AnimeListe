@@ -17,6 +17,7 @@ function showAddAnime() {
     document.getElementById('addAnimeSection').style.display = 'block';
     document.getElementById('animeListSection').style.display = 'none';
     document.getElementById('statisticsSection').style.display = 'none';
+    document.getElementById('descriptionSection').style.display = 'none'; // Cacher la section de description  
     clearInputs(); // Nettoyer les champs d'ajout  
 }
 
@@ -24,6 +25,7 @@ function showAnimeList() {
     document.getElementById('addAnimeSection').style.display = 'none';
     document.getElementById('animeListSection').style.display = 'block';
     document.getElementById('statisticsSection').style.display = 'none';
+    document.getElementById('descriptionSection').style.display = 'none'; // Cacher la section de description  
     renderAnimeList(); // Rendre à jour la liste à chaque fois que l'on l'affiche  
 }
 
@@ -31,7 +33,17 @@ function showStatistics() {
     document.getElementById('addAnimeSection').style.display = 'none';
     document.getElementById('animeListSection').style.display = 'none';
     document.getElementById('statisticsSection').style.display = 'block';
+    document.getElementById('descriptionSection').style.display = 'none'; // Cacher la section de description  
     updateStatistics(); // Mettre à jour les statistiques à chaque affichage  
+}
+
+// Appeler ces fonctions dans showDescription  
+function showDescription() {
+    document.getElementById('addAnimeSection').style.display = 'none';
+    document.getElementById('animeListSection').style.display = 'none';
+    document.getElementById('statisticsSection').style.display = 'none';
+    document.getElementById('descriptionSection').style.display = 'block'; // Afficher la section de description  
+    populateAnimeDropdown(); // Remplir la liste des anime  
 }
 
 function addAnime() {
@@ -86,7 +98,6 @@ function saveAnime() {
 
 function clearInputs() {
     document.getElementById('animeInput').value = '';
-    document.getElementById('animeImage').value = '';
     document.getElementById('nbEpisodes').value = '';
     document.getElementById('animeType').value = 'série';
     document.getElementById('animeStatus').value = 'fini';
@@ -441,6 +452,103 @@ function loadAnimeFromFile(event) {
 
     reader.readAsArrayBuffer(file); // Lire le fichier comme un buffer  
 }
+
+let currentIndex = 0; // Indice de l'élément actuellement mis en avant
+
+function populateAnimeDropdown() {
+    const animeDropdown = document.getElementById('animeDropdown');
+    animeDropdown.innerHTML = ''; // Vider la liste avant de la remplir
+
+    // Remplir la liste avec tous les anime  
+    animeList.forEach((anime) => {
+        const li = document.createElement('li');
+        li.textContent = anime.name; // Afficher le nom de l'anime  
+        li.style.padding = '10px';
+        animeDropdown.appendChild(li);
+    });
+
+    highlightAnime(); // Initialiser la mise en évidence du premier élément  
+}
+
+function highlightAnime() {
+    const animeDropdown = document.getElementById('animeDropdown');
+    const items = animeDropdown.getElementsByTagName('li');
+
+    // Supprimer la mise en évidence des éléments précédents  
+    Array.from(items).forEach(item => {
+        item.style.fontWeight = 'normal';
+        item.style.backgroundColor = '';
+    });
+
+    // Mettre en évidence l'élément courant  
+    if (items.length > 0 && currentIndex < items.length) {
+        items[currentIndex].style.fontWeight = 'bold';
+        items[currentIndex].style.backgroundColor = 'rgba(255, 215, 0, 0.2)'; // Couleur de fond pour l'élément actuel
+
+        // Afficher les détails de l'anime correspondant  
+        displayAnimeDetails(currentIndex);
+    }
+}
+
+function displayAnimeDetails(index) {
+    const anime = animeList[index]; // Récupérer l'anime à partir de l'index  
+    const detailsTableBody = document.getElementById('animeDetailsTable').querySelector('tbody');
+
+    // Vider le tableau avant de remplir  
+    detailsTableBody.innerHTML = '';
+
+    // Ajouter les lignes avec les informations de l'anime  
+    const details = [
+        { property: 'Titre', value: anime.name },
+        { property: 'Type', value: anime.type },
+        { property: 'Statut', value: anime.status },
+        { property: 'Épisodes', value: anime.episodes },
+        { property: 'Graphismes', value: anime.ratings.graphics },
+        { property: 'Personnages', value: anime.ratings.characters },
+        { property: 'Histoire', value: anime.ratings.story },
+        { property: 'Émotion', value: anime.ratings.emotion },
+        { property: 'Général', value: anime.ratings.general }
+    ];
+
+    details.forEach(detail => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${detail.property}</td><td>${detail.value}</td>`;
+        detailsTableBody.appendChild(row);
+    });
+
+    document.getElementById('animeDetailsTable').style.display = 'table'; // Afficher le tableau  
+}
+
+// Fonction pour gérer le défilement et déterminer l'anime au centre  
+function handleScroll() {
+    const animeDropdown = document.getElementById('animeDropdown');
+    const items = animeDropdown.getElementsByTagName('li');
+    const container = document.getElementById('animeContainer');
+    const containerHeight = container.clientHeight;
+    const scrollTop = container.scrollTop;
+
+    // Définir un seuil pour le défilement, par exemple, 75% de la hauteur du conteneur  
+    const threshold = containerHeight * 0.75; // 75% de la hauteur
+
+    // Calculer l'index de l'élément au seuil  
+    for (let i = 0; i < items.length; i++) {
+        const itemTop = items[i].offsetTop;
+        const itemBottom = itemTop + items[i].offsetHeight;
+
+        // Vérifier si le bas de l'élément atteint le seuil  
+        if (scrollTop + threshold >= itemTop && scrollTop + threshold < itemBottom) {
+            currentIndex = i; // Mettre à jour l'index en fonction de l'élément au seuil  
+            break;
+        }
+    }
+
+    // Mettre à jour la mise en évidence  
+    highlightAnime();
+}
+
+// Appeler cette fonction pour initialiser  
+populateAnimeDropdown();
+document.getElementById('animeContainer').addEventListener('scroll', handleScroll);
 
 // Initialiser le chargement des anime au démarrage  
 window.onload = loadAnime;
