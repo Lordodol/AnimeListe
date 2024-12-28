@@ -1,554 +1,244 @@
-let animeList = [];
-const averageEpisodeDuration = 20; // Durée moyenne d'un épisode en minutes  
-let currentAnimeIndex = null;
-let sortCriteria = ''; // Variable pour stocker le critère de tri
-
-// Charger les anime du localStorage au démarrage  
-function loadAnime() {
-    const storedAnime = localStorage.getItem('animeList');
-    if (storedAnime) {
-        animeList = JSON.parse(storedAnime);
-        renderAnimeList();
-        updateStatistics(); // Mettre à jour les statistiques au démarrage  
-    }
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212; /* Couleur de fond sombre */
+    color: #ffffff; /* Couleur du texte en blanc */
+    margin: 0;
+    padding: 0;
+    background-image: url("https://i.postimg.cc/K8nWxckt/jpg.jpg"); /* Image d'arrière-plan */
+    background-size: cover; /* Couvre tout l'espace disponible */
+    background-repeat: no-repeat; /* Pas de répétition de l'image */
+    background-position: center; /* Centre l'image */
+    background-attachment: fixed; /* Rendre l'image fixe lors du défilement */
+    min-height: 100vh; /* Assure que le body prend au moins la hauteur de la vue */
 }
 
-function showAddAnime() {
-    document.getElementById('addAnimeSection').style.display = 'block';
-    document.getElementById('animeListSection').style.display = 'none';
-    document.getElementById('statisticsSection').style.display = 'none';
-    document.getElementById('descriptionSection').style.display = 'none'; // Cacher la section de description  
-    clearInputs(); // Nettoyer les champs d'ajout  
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    border-radius: 10px; /* Coins arrondis */
+    background-color: rgba(192, 192, 192, 0.1); /* Couleur de fond du conteneur */
 }
 
-function showAnimeList() {
-    document.getElementById('addAnimeSection').style.display = 'none';
-    document.getElementById('animeListSection').style.display = 'block';
-    document.getElementById('statisticsSection').style.display = 'none';
-    document.getElementById('descriptionSection').style.display = 'none'; // Cacher la section de description  
-    renderAnimeList(); // Rendre à jour la liste à chaque fois que l'on l'affiche  
+h1, h2 {
+    text-align: center;
+    color: #ffffff; /* Couleur blanche pour le texte des titres */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Ombre pour les titres */
 }
 
-function showStatistics() {
-    document.getElementById('addAnimeSection').style.display = 'none';
-    document.getElementById('animeListSection').style.display = 'none';
-    document.getElementById('statisticsSection').style.display = 'block';
-    document.getElementById('descriptionSection').style.display = 'none'; // Cacher la section de description  
-    updateStatistics(); // Mettre à jour les statistiques à chaque affichage  
+nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
-// Appeler ces fonctions dans showDescription  
-function showDescription() {
-    document.getElementById('addAnimeSection').style.display = 'none';
-    document.getElementById('animeListSection').style.display = 'none';
-    document.getElementById('statisticsSection').style.display = 'none';
-    document.getElementById('descriptionSection').style.display = 'block'; // Afficher la section de description  
-    populateAnimeDropdown(); // Remplir la liste des anime  
+button {
+    margin: 0 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3a3a3a; /* Couleur de fond des boutons */
+    color: #ffffff; /* Couleur du texte des boutons */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.2s; /* Ajout de transition de box-shadow */
 }
 
-function addAnime() {
-    const animeInput = document.getElementById('animeInput');
-    const nbEpisodes = document.getElementById('nbEpisodes').value;
-    const animeType = document.getElementById('animeType').value;
-    const animeStatus = document.getElementById('animeStatus').value;
-    const graphicsRating = document.getElementById('graphicsRating').value;
-    const charactersRating = document.getElementById('charactersRating').value;
-    const storyRating = document.getElementById('storyRating').value;
-    const emotionRating = document.getElementById('emotionRating').value;
-    const generalRating = document.getElementById('generalRating').value;
-
-    // Vérifier si tous les champs sont remplis  
-    if (!animeInput.value.trim() || !nbEpisodes || !animeType || !animeStatus || !graphicsRating || !charactersRating || !storyRating || !emotionRating || !generalRating) {
-        alert("Veuillez remplir tous les champs avant d'ajouter un anime."); // Message d'erreur  
-        return; // Sortir de la fonction si un champ est vide  
-    }
-
-    // Validation des notes  
-    const ratings = [graphicsRating, charactersRating, storyRating, emotionRating, generalRating];
-    for (let i = 0; i < ratings.length; i++) {
-        if (ratings[i] < 0 || ratings[i] > 10) {
-            alert("Les notes doivent être comprises entre 0 et 10.");
-            return; // Sortir de la fonction si une note est invalide  
-        }
-    }
-
-    const anime = {
-        name: animeInput.value.trim(),
-        episodes: parseInt(nbEpisodes),
-        type: animeType,
-        status: animeStatus,
-        ratings: {
-            graphics: parseFloat(graphicsRating),
-            characters: parseFloat(charactersRating),
-            story: parseFloat(storyRating),
-            emotion: parseFloat(emotionRating),
-            general: parseFloat(generalRating)
-        }
-    };
-
-    animeList.push(anime);
-    saveAnime(); // Sauvegarder l'anime dans le localStorage  
-    clearInputs();
-    showAnimeList(); // Afficher la liste des anime après ajout  
+button:hover {
+    background-color: #444; /* Couleur de fond des boutons au survol */
+    transform: translateY(-2px); /* Légère élévation au survol */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Ombre au survol */
 }
 
-function saveAnime() {
-    localStorage.setItem('animeList', JSON.stringify(animeList)); // Enregistrer la liste des anime dans le localStorage  
+.card {
+    background-color: #292929; /* Couleur de fond des cartes */
+    padding: 20px;
+    border-radius: 10px; /* Coins arrondis */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Ombre douce */
+    margin-bottom: 20px; /* Espace entre les cartes */
+    transition: transform 0.3s; /* Transition pour l'effet de zoom */
 }
 
-function clearInputs() {
-    document.getElementById('animeInput').value = '';
-    document.getElementById('nbEpisodes').value = '';
-    document.getElementById('animeType').value = 'série';
-    document.getElementById('animeStatus').value = 'fini';
-    document.getElementById('graphicsRating').value = '';
-    document.getElementById('charactersRating').value = '';
-    document.getElementById('storyRating').value = '';
-    document.getElementById('emotionRating').value = '';
-    document.getElementById('generalRating').value = '';
+.card:hover {
+    transform: scale(1.03); /* Légère augmentation lors du survol */
 }
 
-function renderAnimeList() {
-    const animeListElement = document.getElementById('animeList');
-    animeListElement.innerHTML = '';
-
-    animeList.forEach((anime, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${anime.name} `; // Afficher le nom de l'anime
-
-        // Afficher uniquement la note à droite en fonction du critère de tri  
-        let ratingDisplay = '';
-
-        if (sortCriteria === 'graphics') {
-            ratingDisplay = `${anime.ratings.graphics}`; // Afficher uniquement la note des graphismes  
-        } else if (sortCriteria === 'characters') {
-            ratingDisplay = `${anime.ratings.characters}`; // Afficher uniquement la note des personnages  
-        } else if (sortCriteria === 'story') {
-            ratingDisplay = `${anime.ratings.story}`; // Afficher uniquement la note de l'histoire  
-        } else if (sortCriteria === 'emotion') {
-            ratingDisplay = `${anime.ratings.emotion}`; // Afficher uniquement la note de l'émotion  
-        } else if (sortCriteria === 'general') {
-            ratingDisplay = `${anime.ratings.general}`; // Afficher uniquement la note générale  
-        }
-
-        li.innerHTML += `<span class="rating">${ratingDisplay}</span>`; // Ajouter la note dans un span
-
-        // Ajouter la classe 'golden' si la note générale est 9 ou plus  
-        if (anime.ratings.general >= 9) {
-            li.classList.add('golden');
-        }
-
-        // Écouter le clic pour afficher la fenêtre modale  
-        li.addEventListener('click', () => {
-            openModal(index); // Passer l'index de l'anime  
-        });
-
-        animeListElement.appendChild(li);
-    });
+.dropdown {
+    display: inline-block;
+    position: relative;
+    margin: 10px 0;
 }
 
-function openModal(index) {
-    currentAnimeIndex = index; // Mémoriser l'index de l'anime actuel  
-    const anime = animeList[index]; // Récupérer l'anime à partir de l'index
-
-    document.getElementById('modalImageContainer').innerHTML = `<img src="${anime.image}" alt="${anime.name}" style="max-width: 100%; margin-bottom: 10px;">`;
-
-    const modalTable = document.getElementById('modalTable');
-    modalTable.innerHTML = `
-        <tr>
-            <th>Propriété</th>
-            <th>Valeur</th>
-        </tr>
-        <tr>
-            <td>Nombre d'épisodes</td>
-            <td>${anime.episodes}</td>
-        </tr>
-        <tr>
-            <td>Type</td>
-            <td>${anime.type}</td>
-        </tr>
-        <tr>
-            <td>Statut</td>
-            <td>${anime.status}</td>
-        </tr>
-        <tr>
-            <td>Graphismes</td>
-            <td>${anime.ratings.graphics}</td>
-        </tr>
-        <tr>
-            <td>Personnages</td>
-            <td>${anime.ratings.characters}</td>
-        </tr>
-        <tr>
-            <td>Histoire</td>
-            <td>${anime.ratings.story}</td>
-        </tr>
-        <tr>
-            <td>Émotion</td>
-            <td>${anime.ratings.emotion}</td>
-        </tr>
-        <tr>
-            <td>Général</td>
-            <td>${anime.ratings.general}</td>
-        </tr>
-    `;
-
-    // Masquer le bouton "Supprimer" par défaut  
-    document.getElementById('deleteButton').style.display = 'none';
-
-    document.getElementById('modal').style.display = 'block';
+.dropbtn {
+    padding: 10px 15px;
+    background-color: #3a3a3a; /* Couleur de fond du bouton de tri */
+    color: #ffffff; /* Couleur du texte du bouton de tri */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Transition ajoutée */
 }
 
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
+.dropbtn:hover {
+    background-color: #444; /* Couleur de fond au survol */
+    transform: translateY(-2px); /* Légère élévation au survol */
 }
 
-function enableEditing() {
-    const anime = animeList[currentAnimeIndex];
-
-    // Remplir les champs d'édition  
-    document.getElementById('modalTable').innerHTML = `
-        <tr>
-            <th>Propriété</th>
-            <th>Valeur</th>
-        </tr>
-        <tr>
-            <td>Nombre d'épisodes</td>
-            <td><input type="number" id="editEpisodes" value="${anime.episodes}" min="0" /></td>
-        </tr>
-        <tr>
-            <td>Type</td>
-            <td>
-                <select id="editType">
-                    <option value="série" ${anime.type === 'série' ? 'selected' : ''}>Série</option>
-                    <option value="film" ${anime.type === 'film' ? 'selected' : ''}>Film</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>Statut</td>
-            <td>
-                <select id="editStatus">
-                    <option value="fini" ${anime.status === 'fini' ? 'selected' : ''}>Fini</option>
-                    <option value="en cours" ${anime.status === 'en cours' ? 'selected' : ''}>En cours</option>
-                    <option value="inconnu" ${anime.status === 'inconnu' ? 'selected' : ''}>Inconnu</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>Graphismes</td>
-            <td><input type="number" id="editGraphics" value="${anime.ratings.graphics}" min="0" max="10" /></td>
-        </tr>
-        <tr>
-            <td>Personnages</td>
-            <td><input type="number" id="editCharacters" value="${anime.ratings.characters}" min="0" max="10" /></td>
-        </tr>
-        <tr>
-            <td>Histoire</td>
-            <td><input type="number" id="editStory" value="${anime.ratings.story}" min="0" max="10" /></td>
-        </tr>
-        <tr>
-            <td>Émotion</td>
-            <td><input type="number" id="editEmotion" value="${anime.ratings.emotion}" min="0" max="10" /></td>
-        </tr>
-        <tr>
-            <td>Général</td>
-            <td><input type="number" id="editGeneral" value="${anime.ratings.general}" min="0" max="10" /></td>
-        </tr>
-    `;
-
-    // Afficher le bouton "Supprimer" et masquer le bouton "Modifier"
-    document.getElementById('deleteButton').style.display = 'block'; // Afficher le bouton "Supprimer"
-    document.getElementById('editButton').style.display = 'none';
-    document.getElementById('saveButton').style.display = 'block';
+.dropdown-content {
+    display: none; /* Masquer le menu déroulant par défaut */
+    position: absolute;
+    background-color: #3a3a3a; /* Couleur de fond du menu déroulant */
+    min-width: 160px; /* Largeur minimale du menu déroulant */
+    z-index: 1;
+    border-radius: 5px; /* Coins arrondis */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Ombre douce pour le menu */
 }
 
-function saveChanges() {
-    const editedEpisodes = document.getElementById('editEpisodes').value;
-    const editedType = document.getElementById('editType').value;
-    const editedStatus = document.getElementById('editStatus').value;
-    const editedGraphics = document.getElementById('editGraphics').value;
-    const editedCharacters = document.getElementById('editCharacters').value;
-    const editedStory = document.getElementById('editStory').value;
-    const editedEmotion = document.getElementById('editEmotion').value;
-    const editedGeneral = document.getElementById('editGeneral').value;
-
-    // Validation des notes  
-    const ratings = [editedGraphics, editedCharacters, editedStory, editedEmotion, editedGeneral];
-    for (let i = 0; i < ratings.length; i++) {
-        if (ratings[i] < 0 || ratings[i] > 10) {
-            alert("Les notes doivent être comprises entre 0 et 10.");
-            return; // Sortir de la fonction si une note est invalide  
-        }
-    }
-
-    // Mettre à jour les informations de l'anime  
-    animeList[currentAnimeIndex].episodes = editedEpisodes;
-    animeList[currentAnimeIndex].type = editedType;
-    animeList[currentAnimeIndex].status = editedStatus;
-    animeList[currentAnimeIndex].ratings.graphics = editedGraphics;
-    animeList[currentAnimeIndex].ratings.characters = editedCharacters;
-    animeList[currentAnimeIndex].ratings.story = editedStory;
-    animeList[currentAnimeIndex].ratings.emotion = editedEmotion;
-    animeList[currentAnimeIndex].ratings.general = editedGeneral;
-
-    saveAnime(); // Sauvegarder les modifications dans le localStorage  
-    closeModal(); // Fermer la fenêtre modale  
-    renderAnimeList(); // Réafficher la liste mise à jour  
-    updateStatistics(); // Mettre à jour les statistiques  
-    exportAnimeList(); // Télécharger le fichier mis à jour  
+.dropdown-content a {
+    color: #ffffff; /* Couleur du texte des options */
+    padding: 12px 16px; /* Espacement des options */
+    text-decoration: none; /* Supprimer le soulignement des liens */
+    display: block; /* Afficher les options comme blocs */
+    transition: background-color 0.3s; /* Transition sur la couleur de fond */
 }
 
-function deleteAnime() {
-    // Confirmer la suppression  
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet anime ?")) {
-        // Supprimer l'anime de la liste  
-        animeList.splice(currentAnimeIndex, 1);
-        saveAnime(); // Mettre à jour le stockage local  
-        closeModal(); // Fermer la fenêtre modale  
-        renderAnimeList(); // Réafficher la liste mise à jour  
-        updateStatistics(); // Mettre à jour les statistiques  
-        exportAnimeList(); // Télécharger le fichier mis à jour  
-    }
+.dropdown-content a:hover {
+    background-color: #444; /* Couleur de fond des options au survol */
 }
 
-// Fonction pour mettre à jour les statistiques  
-function updateStatistics() {
-    const countSeries = animeList.filter(anime => anime.type === 'série').length;
-    const countFilms = animeList.filter(anime => anime.type === 'film').length;
-    const totalEpisodes = animeList.reduce((total, anime) => {
-        return total + (anime.type === 'film' ? 1 : anime.episodes);
-    }, 0);
-
-    const totalWatchTimeMinutes = animeList.reduce((total, anime) => {
-        return total + (anime.type === 'film' ? 120 : anime.episodes * averageEpisodeDuration);
-    }, 0);
-
-    const totalWatchTimeHours = (totalWatchTimeMinutes / 60).toFixed(2);
-    const totalWatchTimeDays = (totalWatchTimeMinutes / 1440).toFixed(2);
-
-    // Affichage des statistiques  
-    document.getElementById('countSeries').textContent = countSeries;
-    document.getElementById('countFilms').textContent = countFilms;
-    document.getElementById('totalEpisodes').textContent = totalEpisodes;
-    document.getElementById('totalWatchTimeMinutes').textContent = totalWatchTimeMinutes; // Affichage des minutes  
-    document.getElementById('totalWatchTimeHours').textContent = totalWatchTimeHours; // Affichage des heures  
-    document.getElementById('totalWatchTimeDays').textContent = totalWatchTimeDays; // Affichage des jours
-
-    // Calcul des moyennes  
-    const totalRatings = {
-        graphics: 0,
-        characters: 0,
-        story: 0,
-        emotion: 0,
-        general: 0  
-    };
-
-    animeList.forEach(anime => {
-        totalRatings.graphics += parseFloat(anime.ratings.graphics);
-        totalRatings.characters += parseFloat(anime.ratings.characters);
-        totalRatings.story += parseFloat(anime.ratings.story);
-        totalRatings.emotion += parseFloat(anime.ratings.emotion);
-        totalRatings.general += parseFloat(anime.ratings.general);
-    });
-
-    const animeCount = animeList.length;
-
-    // Calculer les moyennes en évitant la division par zéro  
-    const averageGraphics = animeCount > 0 ? (totalRatings.graphics / animeCount).toFixed(2) : 0;
-    const averageCharacters = animeCount > 0 ? (totalRatings.characters / animeCount).toFixed(2) : 0;
-    const averageStory = animeCount > 0 ? (totalRatings.story / animeCount).toFixed(2) : 0;
-    const averageEmotion = animeCount > 0 ? (totalRatings.emotion / animeCount).toFixed(2) : 0;
-    const averageGeneral = animeCount > 0 ? (totalRatings.general / animeCount).toFixed(2) : 0;
-
-    document.getElementById('averageGraphics').textContent = averageGraphics; // Affichage de la moyenne des graphismes  
-    document.getElementById('averageCharacters').textContent = averageCharacters; // Affichage de la moyenne des personnages  
-    document.getElementById('averageStory').textContent = averageStory; // Affichage de la moyenne de l'histoire  
-    document.getElementById('averageEmotion').textContent = averageEmotion; // Affichage de la moyenne de l'émotion  
-    document.getElementById('averageGeneral').textContent = averageGeneral; // Affichage de la moyenne générale  
+.dropdown:hover .dropdown-content {
+    display: block; /* Afficher le menu déroulant au survol */
 }
 
-// Fonction de tri par critère  
-function sortAnime(criteria) {
-    sortCriteria = criteria; // Mettez à jour le critère de tri
-
-    switch(criteria) {
-        case 'alpha':
-            animeList.sort((a, b) => a.name.localeCompare(b.name)); // Tri alphabetique  
-            break;
-        case 'emotion':
-            animeList.sort((a, b) => b.ratings.emotion - a.ratings.emotion); // Tri par émotion (décroissant)
-            break;
-        case 'story':
-            animeList.sort((a, b) => b.ratings.story - a.ratings.story); // Tri par histoire (décroissant)
-            break;
-        case 'graphics':
-            animeList.sort((a, b) => b.ratings.graphics - a.ratings.graphics); // Tri par graphismes (décroissant)
-            break;
-        case 'characters':
-            animeList.sort((a, b) => b.ratings.characters - a.ratings.characters); // Tri par personnages (décroissant)
-            break;
-        case 'general':
-            animeList.sort((a, b) => b.ratings.general - a.ratings.general); // Tri par général (décroissant)
-            break;
-    }
-    renderAnimeList(); // Rendre la liste mise à jour après le tri  
+#animeList {
+    list-style-type: none;
+    padding: 0;
 }
 
-// Fonction pour exporter la liste des anime en fichier Excel  
-function exportAnimeList() {
-    const worksheet = XLSX.utils.json_to_sheet(animeList.map(anime => ({
-        'Titre': anime.name,
-        'Type': anime.type,
-        'Statut': anime.status,
-        'Épisodes': anime.episodes,
-        'Graphismes': anime.ratings.graphics,
-        'Personnages': anime.ratings.characters,
-        'Histoire': anime.ratings.story,
-        'Émotion': anime.ratings.emotion,
-        'Général': anime.ratings.general  
-    })));
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Liste des Anime");
-
-    // Générer le fichier Excel et le télécharger  
-    XLSX.writeFile(workbook, 'anime_list.xlsx');
+#animeList li {
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #444; /* Bordure des éléments de liste */
+    margin-bottom: 10px;
+    background-color: rgba(4, 146, 115, 0.8); /* Couleur de fond des éléments de liste */
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.2s; /* Ajout de transitions */
+    border-radius: 5px; /* Coins arrondis */
+    display: flex; /* Utilisation du flexbox pour aligner le texte et la note */
+    justify-content: space-between; /* Espacement entre le titre et la note */
 }
 
-// Fonction pour charger la liste d'anime depuis un fichier Excel  
-function loadAnimeFromFile(event) {
-    const file = event.target.files[0]; // Récupérer le fichier sélectionné  
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        // Assume que la première feuille de calcul contient nos anime  
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        // Convertir le JSON en format attendu pour animeList  
-        animeList = json.slice(1).map(row => ({
-            name: row[0],
-            type: row[1],
-            status: row[2],
-            episodes: row[3],
-            ratings: {
-                graphics: row[4],
-                characters: row[5],
-                story: row[6],
-                emotion: row[7],
-                general: row[8]
-            },
-            image: '', // Vous pouvez ajouter une logique pour gérer les images ici  
-        }));
-
-        saveAnime(); // Sauvegarder la nouvelle liste dans localStorage  
-        renderAnimeList(); // Rendre à jour l'affichage de la liste  
-        updateStatistics(); // Mettre à jour les statistiques  
-    };
-
-    reader.readAsArrayBuffer(file); // Lire le fichier comme un buffer  
+#animeList li:hover {
+    background-color: rgba(6, 101, 81, 0.9); /* Couleur de fond au survol */
+    transform: translateY(-2px); /* Légère élévation au survol */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Ombre au survol */
 }
 
-let currentIndex = 0; // Indice de l'élément actuellement mis en avant
-
-function populateAnimeDropdown() {
-    const animeDropdown = document.getElementById('animeDropdown');
-    animeDropdown.innerHTML = ''; // Vider la liste avant de la remplir
-
-    // Remplir la liste avec tous les anime  
-    animeList.forEach((anime) => {
-        const li = document.createElement('li');
-        li.textContent = anime.name; // Afficher le nom de l'anime  
-        li.style.padding = '10px';
-        animeDropdown.appendChild(li);
-    });
-
-    highlightAnime(); // Initialiser la mise en évidence du premier élément  
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.8); /* Couleur de fond sombre de la modale */
 }
 
-function highlightAnime() {
-    const animeDropdown = document.getElementById('animeDropdown');
-    const items = animeDropdown.getElementsByTagName('li');
-
-    // Supprimer la mise en évidence des éléments précédents  
-    Array.from(items).forEach(item => {
-        item.style.fontWeight = 'normal';
-        item.style.backgroundColor = '';
-    });
-
-    // Mettre en évidence l'élément courant  
-    if (items.length > 0 && currentIndex < items.length) {
-        items[currentIndex].style.fontWeight = 'bold';
-        items[currentIndex].style.backgroundColor = 'rgba(255, 215, 0, 0.2)'; // Couleur de fond pour l'élément actuel
-
-        // Afficher les détails de l'anime correspondant  
-        displayAnimeDetails(currentIndex);
-    }
+.modal-content {
+    background-color: #333; /* Couleur de fond de la modale */
+    color: #ffffff; /* Couleur du texte en blanc */
+    margin: 15% auto; 
+    padding: 30px; /* Augmentez le rembourrage pour plus d'espace */
+    border-radius: 12px; /* Coins arrondis plus prononcés */
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.7); /* Ombre plus douce */
+    width: 80%;
+    max-width: 400px; /* Limiter la largeur max pour un look plus modéré */
+    text-align: center; /* Centrer le texte */
 }
 
-function displayAnimeDetails(index) {
-    const anime = animeList[index]; // Récupérer l'anime à partir de l'index  
-    const detailsTableBody = document.getElementById('animeDetailsTable').querySelector('tbody');
-
-    // Vider le tableau avant de remplir  
-    detailsTableBody.innerHTML = '';
-
-    // Ajouter les lignes avec les informations de l'anime  
-    const details = [
-        { property: 'Titre', value: anime.name },
-        { property: 'Type', value: anime.type },
-        { property: 'Statut', value: anime.status },
-        { property: 'Épisodes', value: anime.episodes },
-        { property: 'Graphismes', value: anime.ratings.graphics },
-        { property: 'Personnages', value: anime.ratings.characters },
-        { property: 'Histoire', value: anime.ratings.story },
-        { property: 'Émotion', value: anime.ratings.emotion },
-        { property: 'Général', value: anime.ratings.general }
-    ];
-
-    details.forEach(detail => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${detail.property}</td><td>${detail.value}</td>`;
-        detailsTableBody.appendChild(row);
-    });
-
-    document.getElementById('animeDetailsTable').style.display = 'table'; // Afficher le tableau  
+#modalImageContainer {
+    margin-bottom: 20px;
 }
 
-// Fonction pour gérer le défilement et déterminer l'anime au centre  
-function handleScroll() {
-    const animeDropdown = document.getElementById('animeDropdown');
-    const items = animeDropdown.getElementsByTagName('li');
-    const container = document.getElementById('animeContainer');
-    const containerHeight = container.clientHeight;
-    const scrollTop = container.scrollTop;
-
-    // Définir un seuil pour le défilement, par exemple, 75% de la hauteur du conteneur  
-    const threshold = containerHeight * 0.75; // 75% de la hauteur
-
-    // Calculer l'index de l'élément au seuil  
-    for (let i = 0; i < items.length; i++) {
-        const itemTop = items[i].offsetTop;
-        const itemBottom = itemTop + items[i].offsetHeight;
-
-        // Vérifier si le bas de l'élément atteint le seuil  
-        if (scrollTop + threshold >= itemTop && scrollTop + threshold < itemBottom) {
-            currentIndex = i; // Mettre à jour l'index en fonction de l'élément au seuil  
-            break;
-        }
-    }
-
-    // Mettre à jour la mise en évidence  
-    highlightAnime();
+#modalTable {
+    width: 100%; 
+    border-collapse: collapse;
 }
 
-// Appeler cette fonction pour initialiser  
-populateAnimeDropdown();
-document.getElementById('animeContainer').addEventListener('scroll', handleScroll);
+#modalTable th, 
+#modalTable td {
+    padding: 12px; /* Espacement dans les cellules */
+    text-align: left;
+    border: 1px solid #444; /* Bordure des cellules */
+}
 
-// Initialiser le chargement des anime au démarrage  
-window.onload = loadAnime;
+#modalTable th {
+    background-color: #3a3a3a; /* Couleur de fond des en-têtes du tableau */
+    color: #ffffff; /* Couleur du texte des en-têtes */
+}
+
+#modalTable tr:hover {
+    background-color: #444; /* Couleur de fond au survol des lignes */
+}
+
+#statisticsTable {
+    width: 100%; 
+    border-collapse: collapse;
+    margin-top: 20px; /* Espace au-dessus du tableau */
+}
+
+#statisticsTable th, 
+#statisticsTable td {
+    border: 1px solid #444; /* Bordure des cellules du tableau */
+    padding: 8px;
+    text-align: left;
+}
+
+#statisticsTable th {
+    background-color: #232323; /* Couleur de fond des en-têtes du tableau */
+    color: #ffffff; /* Couleur du texte des en-têtes */
+}
+
+#statisticsTable tr {
+    background-color: #383838; /* Couleur de fond des lignes */
+}
+
+.form-group {
+    margin: 10px 0;
+}
+
+input[type="text"],
+input[type="file"],
+input[type="number"],
+input[type="password"], /* Ajout de l'input pour le mot de passe */
+select {
+    width: 100%; /* Prendre 100% de la largeur de la modale */
+    padding: 12px;
+    border: 1px solid #444; /* Bordure des champs */
+    border-radius: 5px; /* Coins arrondis */
+    background-color: #292929; /* Couleur de fond des champs */
+    color: #ffffff; /* Couleur du texte */
+    margin-top: 10px; /* Espacement au-dessus du champ */
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="file"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+select:focus {
+    border-color: #666; /* Couleur de bordure au focus */
+    outline: none; /* Supprimer le contour par défaut */
+}
+
+/* Style pour les anime ayant une note générale de 9 ou plus */
+.golden {
+    color: gold;
+    font-weight: bold; 
+    border-color: gold; /* Couleur de la bordure en or */
+    border-width: 2px; /* Épaisseur de la bordure */
+    border-style: solid; /* Style de la bordure */
+}
+
+
