@@ -17,6 +17,7 @@ function showAddAnime() {
     document.getElementById('addAnimeSection').style.display = 'block';
     document.getElementById('animeListSection').style.display = 'none';
     document.getElementById('statisticsSection').style.display = 'none';
+    document.getElementById('importExportSection').style.display = 'none';
     clearInputs(); // Nettoyer les champs d'ajout  
 }
 
@@ -24,6 +25,7 @@ function showAnimeList() {
     document.getElementById('addAnimeSection').style.display = 'none';
     document.getElementById('animeListSection').style.display = 'block';
     document.getElementById('statisticsSection').style.display = 'none';
+    document.getElementById('importExportSection').style.display = 'none';
     renderAnimeList(); // Rendre à jour la liste à chaque fois que l'on l'affiche  
 }
 
@@ -31,9 +33,29 @@ function showStatistics() {
     document.getElementById('addAnimeSection').style.display = 'none';
     document.getElementById('animeListSection').style.display = 'none';
     document.getElementById('statisticsSection').style.display = 'block';
+    document.getElementById('importExportSection').style.display = 'none';
     updateStatistics(); // Mettre à jour les statistiques à chaque affichage  
 }
 
+function showImportExport() {
+    document.getElementById('addAnimeSection').style.display = 'none';
+    document.getElementById('animeListSection').style.display = 'none';
+    document.getElementById('statisticsSection').style.display = 'none';
+    document.getElementById('importExportSection').style.display = 'block'; // Afficher la section d'importation et d'exportation  
+}
+
+// Fonction pour vider le localStorage  
+function clearLocalStorage() {
+    if (confirm("Êtes-vous sûr de vouloir vider le Local Storage ?")) {
+        localStorage.removeItem('animeList'); // Effacer la liste des anime  
+        animeList = []; // Réinitialiser le tableau animeList  
+        renderAnimeList(); // Mettre à jour l'affichage  
+        updateStatistics(); // Remettre à jour les statistiques  
+        alert("Le Local Storage a été vidé avec succès !");
+    }
+}
+
+// Fonction pour ajouter un anime  
 function addAnime() {
     const animeInput = document.getElementById('animeInput');
     const nbEpisodes = document.getElementById('nbEpisodes').value;
@@ -44,40 +66,44 @@ function addAnime() {
     const storyRating = document.getElementById('storyRating').value;
     const emotionRating = document.getElementById('emotionRating').value;
     const generalRating = document.getElementById('generalRating').value;
+    const animeImageInput = document.getElementById('animeImageInput');
 
-    // Vérifier si tous les champs sont remplis  
-    if (!animeInput.value.trim() || !nbEpisodes || !animeType || !animeStatus || !graphicsRating || !charactersRating || !storyRating || !emotionRating || !generalRating) {
-        alert("Veuillez remplir tous les champs avant d'ajouter un anime."); // Message d'erreur  
-        return; // Sortir de la fonction si un champ est vide  
+    // Vérification des champs  
+    if (!animeInput.value.trim() || !nbEpisodes || !animeType || !animeStatus ||
+        !graphicsRating || !charactersRating || !storyRating ||
+        !emotionRating || !generalRating || !animeImageInput.files[0]) {
+        alert("Veuillez remplir tous les champs avant d'ajouter un anime.");
+        return;
     }
 
-    // Validation des notes  
-    const ratings = [graphicsRating, charactersRating, storyRating, emotionRating, generalRating];
-    for (let i = 0; i < ratings.length; i++) {
-        if (ratings[i] < 0 || ratings[i] > 10) {
-            alert("Les notes doivent être comprises entre 0 et 10.");
-            return; // Sortir de la fonction si une note est invalide  
-        }
-    }
+    const file = animeImageInput.files[0];
+    const reader = new FileReader();
 
-    const anime = {
-        name: animeInput.value.trim(),
-        episodes: parseInt(nbEpisodes),
-        type: animeType,
-        status: animeStatus,
-        ratings: {
-            graphics: parseFloat(graphicsRating),
-            characters: parseFloat(charactersRating),
-            story: parseFloat(storyRating),
-            emotion: parseFloat(emotionRating),
-            general: parseFloat(generalRating)
-        }
+    reader.onloadend = function () {
+        const anime = {
+            name: animeInput.value.trim(),
+            episodes: parseInt(nbEpisodes),
+            type: animeType,
+            status: animeStatus,
+            ratings: {
+                graphics: parseFloat(graphicsRating),
+                characters: parseFloat(charactersRating),
+                story: parseFloat(storyRating),
+                emotion: parseFloat(emotionRating),
+                general: parseFloat(generalRating)
+            },
+            image: reader.result // Image en base64  
+        };
+
+        animeList.push(anime);
+        saveAnime(); // Sauvegarder dans localStorage  
+        clearInputs();
+        showAnimeList(); // Afficher la liste des anime  
+        saveAnime(); // Sauvegarder dans localStorage  
+        updateStatistics(); // Mettre à jour les statistiques après l'ajout  
     };
 
-    animeList.push(anime);
-    saveAnime(); // Sauvegarder l'anime dans le localStorage  
-    clearInputs();
-    showAnimeList(); // Afficher la liste des anime après ajout  
+    reader.readAsDataURL(file); // Lire l'image comme une URL  
 }
 
 function saveAnime() {
@@ -86,7 +112,7 @@ function saveAnime() {
 
 function clearInputs() {
     document.getElementById('animeInput').value = '';
-    document.getElementById('animeImage').value = '';
+    document.getElementById('animeImageInput').value = '';
     document.getElementById('nbEpisodes').value = '';
     document.getElementById('animeType').value = 'série';
     document.getElementById('animeStatus').value = 'fini';
@@ -118,7 +144,10 @@ function renderAnimeList() {
             ratingDisplay = `${anime.ratings.emotion}`; // Afficher uniquement la note de l'émotion  
         } else if (sortCriteria === 'general') {
             ratingDisplay = `${anime.ratings.general}`; // Afficher uniquement la note générale  
+        } else if (sortCriteria === 'moyenne') {
+             
         }
+
 
         li.innerHTML += `<span class="rating">${ratingDisplay}</span>`; // Ajouter la note dans un span
 
@@ -139,6 +168,15 @@ function renderAnimeList() {
 function openModal(index) {
     currentAnimeIndex = index; // Mémoriser l'index de l'anime actuel  
     const anime = animeList[index]; // Récupérer l'anime à partir de l'index
+
+    // Calculer la moyenne des notes  
+    const averageRating = (
+        parseFloat(anime.ratings.graphics) +
+        parseFloat(anime.ratings.characters) +
+        parseFloat(anime.ratings.story) +
+        parseFloat(anime.ratings.emotion) +
+        parseFloat(anime.ratings.general)
+    ) / 5; // Supposons qu'il y ait 5 notes
 
     document.getElementById('modalImageContainer').innerHTML = `<img src="${anime.image}" alt="${anime.name}" style="max-width: 100%; margin-bottom: 10px;">`;
 
@@ -180,12 +218,17 @@ function openModal(index) {
             <td>Général</td>
             <td>${anime.ratings.general}</td>
         </tr>
+        <tr>
+            <td><strong>Moyenne des Notes</strong></td>
+            <td><strong>${averageRating.toFixed(2)}</strong></td> <!-- Afficher la moyenne -->
+        </tr>
     `;
 
-    // Masquer le bouton "Supprimer" par défaut  
-    document.getElementById('deleteButton').style.display = 'none';
+    document.getElementById('editButton').style.display = 'inline-block'; // Afficher le bouton "Modifier"
+    document.getElementById('saveButton').style.display = 'none'; // Masquer le bouton "Sauvegarder"
+    document.getElementById('deleteButton').style.display = 'none'; // Afficher le bouton "Supprimer"
 
-    document.getElementById('modal').style.display = 'block';
+    document.getElementById('modal').style.display = 'block'; // Afficher la modale  
 }
 
 function closeModal() {
@@ -246,21 +289,22 @@ function enableEditing() {
         </tr>
     `;
 
-    // Afficher le bouton "Supprimer" et masquer le bouton "Modifier"
+    // Gérer la visibilité des boutons  
+    document.getElementById('editButton').style.display = 'none'; // Masquer le bouton "Modifier"
+    document.getElementById('saveButton').style.display = 'block'; // Afficher le bouton "Sauvegarder"
     document.getElementById('deleteButton').style.display = 'block'; // Afficher le bouton "Supprimer"
-    document.getElementById('editButton').style.display = 'none';
-    document.getElementById('saveButton').style.display = 'block';
 }
 
 function saveChanges() {
-    const editedEpisodes = document.getElementById('editEpisodes').value;
+    // Récupération des valeurs des champs d'édition  
+    const editedEpisodes = parseInt(document.getElementById('editEpisodes').value, 10); // Conversion en entier  
     const editedType = document.getElementById('editType').value;
     const editedStatus = document.getElementById('editStatus').value;
-    const editedGraphics = document.getElementById('editGraphics').value;
-    const editedCharacters = document.getElementById('editCharacters').value;
-    const editedStory = document.getElementById('editStory').value;
-    const editedEmotion = document.getElementById('editEmotion').value;
-    const editedGeneral = document.getElementById('editGeneral').value;
+    const editedGraphics = parseFloat(document.getElementById('editGraphics').value); // Conversion en float  
+    const editedCharacters = parseFloat(document.getElementById('editCharacters').value); // Conversion en float  
+    const editedStory = parseFloat(document.getElementById('editStory').value); // Conversion en float  
+    const editedEmotion = parseFloat(document.getElementById('editEmotion').value); // Conversion en float  
+    const editedGeneral = parseFloat(document.getElementById('editGeneral').value); // Conversion en float
 
     // Validation des notes  
     const ratings = [editedGraphics, editedCharacters, editedStory, editedEmotion, editedGeneral];
@@ -272,33 +316,27 @@ function saveChanges() {
     }
 
     // Mettre à jour les informations de l'anime  
-    animeList[currentAnimeIndex].episodes = editedEpisodes;
-    animeList[currentAnimeIndex].type = editedType;
-    animeList[currentAnimeIndex].status = editedStatus;
-    animeList[currentAnimeIndex].ratings.graphics = editedGraphics;
-    animeList[currentAnimeIndex].ratings.characters = editedCharacters;
-    animeList[currentAnimeIndex].ratings.story = editedStory;
-    animeList[currentAnimeIndex].ratings.emotion = editedEmotion;
-    animeList[currentAnimeIndex].ratings.general = editedGeneral;
+    const currentAnime = animeList[currentAnimeIndex];
+    currentAnime.episodes = editedEpisodes; // Assurez-vous que c'est un nombre  
+    currentAnime.type = editedType;
+    currentAnime.status = editedStatus;
+    currentAnime.ratings.graphics = editedGraphics; // Assurez-vous que c'est un nombre  
+    currentAnime.ratings.characters = editedCharacters; // Assurez-vous que c'est un nombre  
+    currentAnime.ratings.story = editedStory; // Assurez-vous que c'est un nombre  
+    currentAnime.ratings.emotion = editedEmotion; // Assurez-vous que c'est un nombre  
+    currentAnime.ratings.general = editedGeneral; // Assurez-vous que c'est un nombre
 
-    saveAnime(); // Sauvegarder les modifications dans le localStorage  
-    closeModal(); // Fermer la fenêtre modale  
-    renderAnimeList(); // Réafficher la liste mise à jour  
-    updateStatistics(); // Mettre à jour les statistiques  
-    exportAnimeList(); // Télécharger le fichier mis à jour  
-}
+    // Sauvegarder les modifications dans le localStorage  
+    saveAnime(); 
 
-function deleteAnime() {
-    // Confirmer la suppression  
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet anime ?")) {
-        // Supprimer l'anime de la liste  
-        animeList.splice(currentAnimeIndex, 1);
-        saveAnime(); // Mettre à jour le stockage local  
-        closeModal(); // Fermer la fenêtre modale  
-        renderAnimeList(); // Réafficher la liste mise à jour  
-        updateStatistics(); // Mettre à jour les statistiques  
-        exportAnimeList(); // Télécharger le fichier mis à jour  
-    }
+    // Fermer la fenêtre modale  
+    closeModal(); 
+
+    // Réafficher la liste mise à jour  
+    renderAnimeList(); 
+
+    // Mettre à jour les statistiques  
+    updateStatistics(); 
 }
 
 // Fonction pour mettre à jour les statistiques  
@@ -316,7 +354,7 @@ function updateStatistics() {
     const totalWatchTimeHours = (totalWatchTimeMinutes / 60).toFixed(2);
     const totalWatchTimeDays = (totalWatchTimeMinutes / 1440).toFixed(2);
 
-    // Affichage des statistiques  
+    // Mise à jour de l'affichage des statistiques  
     document.getElementById('countSeries').textContent = countSeries;
     document.getElementById('countFilms').textContent = countFilms;
     document.getElementById('totalEpisodes').textContent = totalEpisodes;
@@ -334,11 +372,11 @@ function updateStatistics() {
     };
 
     animeList.forEach(anime => {
-        totalRatings.graphics += parseFloat(anime.ratings.graphics);
-        totalRatings.characters += parseFloat(anime.ratings.characters);
-        totalRatings.story += parseFloat(anime.ratings.story);
-        totalRatings.emotion += parseFloat(anime.ratings.emotion);
-        totalRatings.general += parseFloat(anime.ratings.general);
+        totalRatings.graphics += parseFloat(anime.ratings.graphics) || 0; // Assurer que ce soit un nombre  
+        totalRatings.characters += parseFloat(anime.ratings.characters) || 0; // Assurer que ce soit un nombre  
+        totalRatings.story += parseFloat(anime.ratings.story) || 0; // Assurer que ce soit un nombre  
+        totalRatings.emotion += parseFloat(anime.ratings.emotion) || 0; // Assurer que ce soit un nombre  
+        totalRatings.general += parseFloat(anime.ratings.general) || 0; // Assurer que ce soit un nombre  
     });
 
     const animeCount = animeList.length;
@@ -350,6 +388,7 @@ function updateStatistics() {
     const averageEmotion = animeCount > 0 ? (totalRatings.emotion / animeCount).toFixed(2) : 0;
     const averageGeneral = animeCount > 0 ? (totalRatings.general / animeCount).toFixed(2) : 0;
 
+    // Mise à jour de l'affichage des moyennes  
     document.getElementById('averageGraphics').textContent = averageGraphics; // Affichage de la moyenne des graphismes  
     document.getElementById('averageCharacters').textContent = averageCharacters; // Affichage de la moyenne des personnages  
     document.getElementById('averageStory').textContent = averageStory; // Affichage de la moyenne de l'histoire  
@@ -363,7 +402,7 @@ function sortAnime(criteria) {
 
     switch(criteria) {
         case 'alpha':
-            animeList.sort((a, b) => a.name.localeCompare(b.name)); // Tri alphabetique  
+            animeList.sort((a, b) => a.name.localeCompare(b.name)); // Tri alphabétique  
             break;
         case 'emotion':
             animeList.sort((a, b) => b.ratings.emotion - a.ratings.emotion); // Tri par émotion (décroissant)
@@ -380,13 +419,30 @@ function sortAnime(criteria) {
         case 'general':
             animeList.sort((a, b) => b.ratings.general - a.ratings.general); // Tri par général (décroissant)
             break;
+        case 'average': // Ajout du cas pour trier par moyenne  
+            animeList.sort((a, b) => {
+                const averageA = (parseFloat(a.ratings.graphics) + 
+                                  parseFloat(a.ratings.characters) + 
+                                  parseFloat(a.ratings.story) + 
+                                  parseFloat(a.ratings.emotion) + 
+                                  parseFloat(a.ratings.general)) / 5; // Calculer la moyenne de A
+  
+                const averageB = (parseFloat(b.ratings.graphics) + 
+                                  parseFloat(b.ratings.characters) + 
+                                  parseFloat(b.ratings.story) + 
+                                  parseFloat(b.ratings.emotion) + 
+                                  parseFloat(b.ratings.general)) / 5; // Calculer la moyenne de B
+
+                return averageB - averageA; // Tri par moyenne décroissante  
+            });
+            break;
     }
     renderAnimeList(); // Rendre la liste mise à jour après le tri  
 }
 
 // Fonction pour exporter la liste des anime en fichier Excel  
 function exportAnimeList() {
-    const worksheet = XLSX.utils.json_to_sheet(animeList.map(anime => ({
+    const worksheetData = animeList.map(anime => ({
         'Titre': anime.name,
         'Type': anime.type,
         'Statut': anime.status,
@@ -395,14 +451,22 @@ function exportAnimeList() {
         'Personnages': anime.ratings.characters,
         'Histoire': anime.ratings.story,
         'Émotion': anime.ratings.emotion,
-        'Général': anime.ratings.general  
-    })));
+        'Général': anime.ratings.general,
+    }));
 
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Liste des Anime");
 
-    // Générer le fichier Excel et le télécharger  
-    XLSX.writeFile(workbook, 'anime_list.xlsx');
+    // Générer le fichier Excel  
+    const excelFile = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelFile], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'anime_list.xlsx'; // Nom du fichier Excel  
+    link.click(); // Déclencher le téléchargement
+
+    alert("Votre fichier Excel a été téléchargé avec succès !");
 }
 
 // Fonction pour charger la liste d'anime depuis un fichier Excel  
@@ -431,7 +495,7 @@ function loadAnimeFromFile(event) {
                 emotion: row[7],
                 general: row[8]
             },
-            image: '', // Vous pouvez ajouter une logique pour gérer les images ici  
+            image: '', // Placeholder pour l'image  
         }));
 
         saveAnime(); // Sauvegarder la nouvelle liste dans localStorage  
@@ -440,6 +504,58 @@ function loadAnimeFromFile(event) {
     };
 
     reader.readAsArrayBuffer(file); // Lire le fichier comme un buffer  
+}
+
+// Fonction pour exporter les images en JSON  
+function exportAnimeImages() {
+    const images = animeList.map(anime => anime.image); // Extraire les images  
+    const jsonString = JSON.stringify(images, null, 2); // Convertir en format JSON  
+    const blob = new Blob([jsonString], { type: 'application/json' }); // Créer un Blob pour le JSON  
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'anime_images.json'; // Nom du fichier JSON  
+    link.click(); // Déclencher le téléchargement
+
+    alert("Votre fichier JSON d'images a été téléchargé avec succès !");
+}
+
+// Fonction pour charger les images des anime depuis un fichier JSON  
+function loadAnimeFromJSON(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const images = JSON.parse(e.target.result);
+
+        // Assurez-vous que le nombre d'images correspond au nombre d'anime  
+        if (images.length !== animeList.length) {
+            alert("Le nombre d'images ne correspond pas au nombre d'anime !");
+            return;
+        }
+
+        // Assigner les images aux anime dans animeList  
+        animeList.forEach((anime, index) => {
+            anime.image = images[index]; // Assigner l'image à chaque anime  
+        });
+
+        alert('Images des anime importées avec succès !');
+        renderAnimeList(); // Afficher la liste des anime mise à jour  
+    };
+
+    reader.readAsText(file);
+}
+
+function deleteAnime() {
+    if (currentAnimeIndex !== null) {
+        if (confirm("Êtes-vous sûr de vouloir supprimer cet anime ?")) {
+            animeList.splice(currentAnimeIndex, 1); // Supprimer l'anime  
+            saveAnime(); // Sauvegarder les changements  
+            closeModal(); // Fermer la modale  
+            renderAnimeList(); // Mettre à jour l'affichage de la liste  
+            updateStatistics(); // Mettre à jour les statistiques après la suppression  
+            alert("L'anime a été supprimé avec succès !");
+        }
+    }
 }
 
 // Initialiser le chargement des anime au démarrage  
