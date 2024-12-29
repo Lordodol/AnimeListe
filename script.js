@@ -131,30 +131,26 @@ function renderAnimeList() {
         const li = document.createElement('li');
         li.textContent = `${anime.name} `; // Afficher le nom de l'anime
 
-        // Afficher uniquement la note à droite en fonction du critère de tri  
-        let ratingDisplay = '';
+        // Calculer la moyenne des notes 
+        const averageRating = (
+            (parseFloat(anime.ratings.graphics) +
+            parseFloat(anime.ratings.characters) +
+            parseFloat(anime.ratings.story) +
+            parseFloat(anime.ratings.emotion) +
+            parseFloat(anime.ratings.general)) / 5  
+        ).toFixed(2); // Calculer la moyenne et arrondir à 2 décimales
 
-        if (sortCriteria === 'graphics') {
-            ratingDisplay = `${anime.ratings.graphics}`; // Afficher uniquement la note des graphismes  
-        } else if (sortCriteria === 'characters') {
-            ratingDisplay = `${anime.ratings.characters}`; // Afficher uniquement la note des personnages  
-        } else if (sortCriteria === 'story') {
-            ratingDisplay = `${anime.ratings.story}`; // Afficher uniquement la note de l'histoire  
-        } else if (sortCriteria === 'emotion') {
-            ratingDisplay = `${anime.ratings.emotion}`; // Afficher uniquement la note de l'émotion  
-        } else if (sortCriteria === 'general') {
-            ratingDisplay = `${anime.ratings.general}`; // Afficher uniquement la note générale  
-        } else if (sortCriteria === 'moyenne') {
-             
+        // Appliquer la classe en fonction de la moyenne  
+        if (averageRating >= 9) {
+            li.classList.add('golden'); // Classe pour l'or  
+        } else if (averageRating >= 8.5) {
+            li.classList.add('silver'); // Classe pour l'argent  
+        } else if (averageRating >= 8) {
+            li.classList.add('bronze'); // Classe pour le bronze  
         }
 
-
-        li.innerHTML += `<span class="rating">${ratingDisplay}</span>`; // Ajouter la note dans un span
-
-        // Ajouter la classe 'golden' si la note générale est 9 ou plus  
-        if (anime.ratings.general >= 9) {
-            li.classList.add('golden');
-        }
+        // Afficher uniquement la note à droite  
+        li.innerHTML += `<span class="rating">${averageRating}</span>`; // Ajouter la note dans un span
 
         // Écouter le clic pour afficher la fenêtre modale  
         li.addEventListener('click', () => {
