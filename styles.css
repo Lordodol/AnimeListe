@@ -232,15 +232,6 @@ select:focus {
     outline: none; /* Supprimer le contour par défaut */
 }
 
-/* Style pour les anime ayant une note générale de 9 ou plus */
-.golden {
-    color: gold;
-    font-weight: bold; 
-    border-color: gold; /* Couleur de la bordure en or */
-    border-width: 2px; /* Épaisseur de la bordure */
-    border-style: solid; /* Style de la bordure */
-}
-
 #importExportSection {
     display: flex;
     flex-direction: column;
@@ -252,4 +243,19 @@ button {
     padding: 10px; /* Espacement intérieur pour un meilleur look */
     margin: 5px; /* Espacement entre les boutons */
     cursor: pointer; /* Curseur de pointeur pour les boutons */
+}
+
+.golden {
+    color: gold; /* Couleur dorée */
+    font-weight: bold; 
+}
+
+.silver {
+    color: silver; /* Couleur argent */
+    font-weight: bold; 
+}
+
+.bronze {
+    color: #cd7f32; /* Couleur bronze */
+    font-weight: bold; 
 }
