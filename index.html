@@ -19,7 +19,7 @@
             <button onclick="showAddAnime()">Ajouter Anime</button>
             <button onclick="showAnimeList()">Liste des Anime</button>
             <button onclick="showStatistics()">Statistiques</button>
-            <button onclick="showImportExport()">Importation & Exportation</button> <!-- Nouveau bouton -->
+            <button onclick="showImportExport()">Importation & Exportation</button>
         </nav>
 
         <!-- Interface d'ajout d'anime -->
@@ -139,7 +139,6 @@
         </section>
 
         <!-- Section d'importation et d'exportation -->
-
         <div id="importExportSection">
             <div style="margin-bottom: 10px;">
                 <button id="importButton" onclick="document.getElementById('fileInput').click()">Importer</button>
@@ -208,6 +207,13 @@
                     <button id="editButton" style="margin-right: 10px;" onclick="enableEditing()">Modifier</button>
                     <button id="saveButton" style="display:none;" onclick="saveChanges()">Sauvegarder</button>
                     <button id="deleteButton" style="display:none;" onclick="deleteAnime()">Supprimer</button>
+                </div>
+                <div style="margin-top: 20px;">
+                    <input type="file" id="editImageInput" accept="image/*" style="display: none;" />
+                    <button id="changeImageButton" style="display: none;" onclick="document.getElementById('editImageInput').click()">Changer l'image</button>
+                    <div id="currentImageContainer" style="text-align: center; margin-top: 10px;">
+                        <img id="currentImage" src="" alt="" style="max-width: 100%;" />
+                    </div>
                 </div>
             </div>
         </div>
