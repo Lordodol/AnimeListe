@@ -567,5 +567,70 @@ function deleteAnime() {
     }
 }
 
+function filterAnime(status) {
+    const filteredAnimeList = status === 'tous' ? animeList : animeList.filter(anime => anime.status === status);
+    renderFilteredAnimeList(filteredAnimeList);
+}
+
+function renderFilteredAnimeList(filteredList) {
+    const animeListElement = document.getElementById('animeList');
+    animeListElement.innerHTML = '';
+
+    filteredList.forEach((anime, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${anime.name} `;
+
+        // Calculer la moyenne des notes 
+        const averageRating = (
+            (parseFloat(anime.ratings.graphics) +
+            parseFloat(anime.ratings.characters) +
+            parseFloat(anime.ratings.story) +
+            parseFloat(anime.ratings.emotion) +
+            parseFloat(anime.ratings.general)) / 5  
+        ).toFixed(2);
+
+        // Appliquer la classe en fonction de la moyenne  
+        if (averageRating >= 9) {
+            li.classList.add('golden'); 
+        } else if (averageRating >= 8.5) {
+            li.classList.add('silver'); 
+        } else if (averageRating >= 8) {
+            li.classList.add('bronze'); 
+        }
+
+        li.innerHTML += `<span class="rating">${averageRating}</span>`; 
+
+        li.addEventListener('click', () => {
+            openModal(animeList.indexOf(anime));
+        });
+
+        animeListElement.appendChild(li);
+    });
+}
+
+function filterAnime(status) {
+    currentStatusFilter = status; // Mettre à jour le filtre de statut
+
+    // Filtrer la liste selon le statut actuel  
+    currentFilteredList = animeList.filter(anime => 
+        (status === 'tous' || anime.status === status) &&
+        (currentTypeFilter === 'tout' || anime.type === currentTypeFilter) // Appliquer aussi le filtre de type  
+    );
+
+    renderFilteredAnimeList(currentFilteredList);
+}
+
+function filterType(type) {
+    currentTypeFilter = type; // Mettre à jour le filtre de type
+
+    // Filtrer la liste selon le type actuel  
+    currentFilteredList = animeList.filter(anime => 
+        (currentStatusFilter === 'tous' || anime.status === currentStatusFilter) &&
+        (type === 'tout' || anime.type === type) // Appliquer aussi le filtre de statut  
+    );
+
+    renderFilteredAnimeList(currentFilteredList);
+}
+
 // Initialiser le chargement des anime au démarrage  
 window.onload = loadAnime;
