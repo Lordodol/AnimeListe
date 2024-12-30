@@ -80,6 +80,22 @@
                     <a href="#" onclick="sortAnime('average')">Par Moyenne</a>
                 </div>
             </div>
+            <div class="dropdown">
+                <button class="dropbtn">Filtrer</button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="filterAnime('en cours')">En Cours</a>
+                    <a href="#" onclick="filterAnime('inconnu')">Inconnu</a>
+                    <a href="#" onclick="filterAnime('tous')">Tous</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">Filtrer par Type</button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="filterType('série')">Série</a>
+                    <a href="#" onclick="filterType('film')">Film</a>
+                    <a href="#" onclick="filterType('tout')">Tout</a>
+                </div>
+            </div>
             <ul id="animeList"></ul>
         </section>
 
