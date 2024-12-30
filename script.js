@@ -220,6 +220,7 @@ function openModal(index) {
         </tr>
     `;
 
+    document.getElementById('changeImageButton').style.display = 'none';
     document.getElementById('editButton').style.display = 'inline-block'; // Afficher le bouton "Modifier"
     document.getElementById('saveButton').style.display = 'none'; // Masquer le bouton "Sauvegarder"
     document.getElementById('deleteButton').style.display = 'none'; // Afficher le bouton "Supprimer"
@@ -286,6 +287,7 @@ function enableEditing() {
     `;
 
     // Gérer la visibilité des boutons  
+    document.getElementById('changeImageButton').style.display = 'block';
     document.getElementById('editButton').style.display = 'none'; // Masquer le bouton "Modifier"
     document.getElementById('saveButton').style.display = 'block'; // Afficher le bouton "Sauvegarder"
     document.getElementById('deleteButton').style.display = 'block'; // Afficher le bouton "Supprimer"
@@ -300,7 +302,8 @@ function saveChanges() {
     const editedCharacters = parseFloat(document.getElementById('editCharacters').value); // Conversion en float  
     const editedStory = parseFloat(document.getElementById('editStory').value); // Conversion en float  
     const editedEmotion = parseFloat(document.getElementById('editEmotion').value); // Conversion en float  
-    const editedGeneral = parseFloat(document.getElementById('editGeneral').value); // Conversion en float
+    const editedGeneral = parseFloat(document.getElementById('editGeneral').value); // Conversion en float  
+    const editedImageInput = document.getElementById('editImageInput');
 
     // Validation des notes  
     const ratings = [editedGraphics, editedCharacters, editedStory, editedEmotion, editedGeneral];
@@ -322,17 +325,27 @@ function saveChanges() {
     currentAnime.ratings.emotion = editedEmotion; // Assurez-vous que c'est un nombre  
     currentAnime.ratings.general = editedGeneral; // Assurez-vous que c'est un nombre
 
-    // Sauvegarder les modifications dans le localStorage  
-    saveAnime(); 
+    // Vérifier si une nouvelle image a été choisie  
+    if (editedImageInput.files.length > 0) {
+        const file = editedImageInput.files[0];
+        const reader = new FileReader();
 
-    // Fermer la fenêtre modale  
-    closeModal(); 
+        reader.onloadend = function () {
+            currentAnime.image = reader.result; // Mettre à jour l'image en base64  
+            saveAnime(); // Sauvegarder les modifications dans le localStorage  
+            closeModal(); // Fermer la fenêtre modale  
+            renderAnimeList(); // Mettre à jour l'affichage de la liste  
+            updateStatistics(); // Mettre à jour les statistiques  
+        };
 
-    // Réafficher la liste mise à jour  
-    renderAnimeList(); 
-
-    // Mettre à jour les statistiques  
-    updateStatistics(); 
+        reader.readAsDataURL(file); // Lire l'image comme une URL  
+    } else {
+        // Si aucune nouvelle image n'est sélectionnée, simplement sauvegarder  
+        saveAnime(); 
+        closeModal(); // Fermer la fenêtre modale  
+        renderAnimeList(); // Mettre à jour l'affichage de la liste  
+        updateStatistics(); // Mettre à jour les statistiques  
+    }
 }
 
 // Fonction pour mettre à jour les statistiques  
