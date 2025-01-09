@@ -259,3 +259,80 @@ button {
     color: #cd7f32; /* Couleur bronze */
     font-weight: bold; 
 }
+
+/* Styles pour les tableaux */
+table {
+    width: 100%; /* Occuper toute la largeur disponible */
+    border-collapse: collapse; /* Fusionner les bordures */
+    margin-bottom: 20px; /* Espace entre les tableaux */
+}
+
+th {
+    background-color: #3a3a3a; /* Couleur de fond des en-têtes */
+    color: #ffffff; /* Couleur du texte des en-têtes */
+    font-weight: bold; /* Texte en gras */
+    text-transform: uppercase; /* Texte en majuscules */
+    padding: 12px; /* Espacement intérieur pour les en-têtes */
+}
+
+td {
+    background-color: #444; /* Couleur de fond de toutes les cellules */
+    color: #ffffff; /* Couleur du texte des cellules */
+    padding: 12px; /* Espacement intérieur pour les cellules */
+    border: 1px solid #555; /* Bordure des cellules */
+}
+
+h3 {
+    text-align: center; /* Centrer les titres des tableaux */
+    color: #ffffff; /* Couleur du texte des titres */
+    margin-top: 20px; /* Espace au-dessus du titre */
+    margin-bottom: 10px; /* Espace en dessous du titre */
+}
+
+.bottom-menu {
+    position: fixed; /* Rendre la barre de menu fixe en bas */
+    left: 0; /* Alignement à gauche */
+    bottom: 0; /* Alignement en bas */
+    width: 100%; /* Largeur complète */
+    background-color: #333333c9; /* Couleur de fond */
+    display: flex; /* Utiliser flexbox pour aligner les boutons */
+    justify-content: space-around; /* Espacement égal entre les boutons */
+    padding: 10px 0; /* Espacement vertical */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5); /* Ombre en haut */
+    z-index: 1000; /* Assurer que la barre est au-dessus du contenu */
+}
+
+#animeListSection,
+#statisticsSection,
+#addAnimeSection {
+    padding-bottom: 60px; /* Éspace équivalent à la hauteur de la barre de menu */
+    box-sizing: border-box; /* Inclure le padding dans la largeur */
+}
+
+.bottom-menu button {
+    background: none; /* Pas de fond */
+    border: none; /* Pas de bordure */
+    color: #ffffff; /* Couleur du texte */
+    background-color: #333333e6;
+    cursor: pointer; /* Curseur pointer */
+    text-align: center; /* Centrer le texte */
+    width: 50px; /* Largeur du bouton */
+    height: 50px; /* Hauteur du bouton pour le rendre carré */
+    display: flex; /* Utiliser flexbox pour centrer les icônes et le texte */
+    flex-direction: column; /* Aligner le contenu en colonne */
+    justify-content: center; /* Centrer verticalement */
+    align-items: center; /* Centrer horizontalement */
+    margin: 0; /* Supprimer les marges */
+}
+
+.bottom-menu svg {
+    width: 24px; /* Largeur des icônes */
+    height: 24px; /* Hauteur des icônes */
+    display: block; /* Afficher les icônes en bloc */
+    margin: 0 auto; /* Centrer les icônes */
+}
+
+.bottom-menu span {
+    font-size: 12px; /* Taille du texte */
+    display: block; /* Afficher le texte en bloc pour le centrer */
+}
