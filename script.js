@@ -59,7 +59,7 @@ function clearLocalStorage() {
 function addAnime() {
     const animeInput = document.getElementById('animeInput');
     const nbEpisodes = document.getElementById('nbEpisodes').value;
-    const animeType = document.getElementById('animeType').value;
+    const animeType = document.getElementById('animeType').value; // Capturer le type  
     const animeStatus = document.getElementById('animeStatus').value;
     const graphicsRating = document.getElementById('graphicsRating').value;
     const charactersRating = document.getElementById('charactersRating').value;
@@ -83,7 +83,7 @@ function addAnime() {
         const anime = {
             name: animeInput.value.trim(),
             episodes: parseInt(nbEpisodes),
-            type: animeType,
+            type: animeType, // Type (série, film, webtoon)
             status: animeStatus,
             ratings: {
                 graphics: parseFloat(graphicsRating),
@@ -99,7 +99,6 @@ function addAnime() {
         saveAnime(); // Sauvegarder dans localStorage  
         clearInputs();
         showAnimeList(); // Afficher la liste des anime  
-        saveAnime(); // Sauvegarder dans localStorage  
         updateStatistics(); // Mettre à jour les statistiques après l'ajout  
     };
 
@@ -251,6 +250,7 @@ function enableEditing() {
                 <select id="editType">
                     <option value="série" ${anime.type === 'série' ? 'selected' : ''}>Série</option>
                     <option value="film" ${anime.type === 'film' ? 'selected' : ''}>Film</option>
+                    <option value="webtoon" ${anime.type === 'webtoon' ? 'selected' : ''}>Webtoon</option> <!-- Ajout de l'option webtoon -->
                 </select>
             </td>
         </tr>
@@ -296,7 +296,7 @@ function enableEditing() {
 function saveChanges() {
     // Récupération des valeurs des champs d'édition  
     const editedEpisodes = parseInt(document.getElementById('editEpisodes').value, 10); // Conversion en entier  
-    const editedType = document.getElementById('editType').value;
+    const editedType = document.getElementById('editType').value; // Récupérer le type édité  
     const editedStatus = document.getElementById('editStatus').value;
     const editedGraphics = parseFloat(document.getElementById('editGraphics').value); // Conversion en float  
     const editedCharacters = parseFloat(document.getElementById('editCharacters').value); // Conversion en float  
@@ -317,7 +317,7 @@ function saveChanges() {
     // Mettre à jour les informations de l'anime  
     const currentAnime = animeList[currentAnimeIndex];
     currentAnime.episodes = editedEpisodes; // Assurez-vous que c'est un nombre  
-    currentAnime.type = editedType;
+    currentAnime.type = editedType; // Mettre à jour le type  
     currentAnime.status = editedStatus;
     currentAnime.ratings.graphics = editedGraphics; // Assurez-vous que c'est un nombre  
     currentAnime.ratings.characters = editedCharacters; // Assurez-vous que c'est un nombre  
@@ -348,61 +348,58 @@ function saveChanges() {
     }
 }
 
-// Fonction pour mettre à jour les statistiques  
 function updateStatistics() {
     const countSeries = animeList.filter(anime => anime.type === 'série').length;
     const countFilms = animeList.filter(anime => anime.type === 'film').length;
-    const totalEpisodes = animeList.reduce((total, anime) => {
-        return total + (anime.type === 'film' ? 1 : anime.episodes);
-    }, 0);
+    const countWebtoons = animeList.filter(anime => anime.type === 'webtoon').length;
 
-    const totalWatchTimeMinutes = animeList.reduce((total, anime) => {
-        return total + (anime.type === 'film' ? 120 : anime.episodes * averageEpisodeDuration);
-    }, 0);
+    // Calculer le nombre total d'épisodes pour les séries et webtoons  
+    const totalAnimeEpisodes = animeList  
+        .filter(anime => anime.type === 'série')
+        .reduce((total, anime) => total + anime.episodes, 0);
+    
+    const totalWebtoonEpisodes = animeList  
+        .filter(anime => anime.type === 'webtoon')
+        .reduce((total, anime) => total + anime.episodes, 0);
 
-    const totalWatchTimeHours = (totalWatchTimeMinutes / 60).toFixed(2);
-    const totalWatchTimeDays = (totalWatchTimeMinutes / 1440).toFixed(2);
+    // Calculer le temps de visionnage (en minutes)
+    const totalAnimeWatchTimeMinutes = totalAnimeEpisodes * 22; // Durée de 22 minutes par épisode  
+    const totalWebtoonWatchTimeMinutes = totalWebtoonEpisodes * 3; // Durée de 3 minutes par épisode  
+    const totalMovieWatchTimeMinutes = countFilms * 150; // Durée de 2h30 (150 minutes) par film
 
-    // Mise à jour de l'affichage des statistiques  
+    // Récupérer l'unité sélectionnée  
+    const timeUnit = document.getElementById("timeUnitSelect").value;
+
+    // Convertir le temps de visionnage selon l'unité sélectionnée  
+    let totalAnimeWatchTime;
+    let totalWebtoonWatchTime;
+    let totalMovieWatchTime;
+
+    if (timeUnit === "minutes") {
+        totalAnimeWatchTime = totalAnimeWatchTimeMinutes;
+        totalWebtoonWatchTime = totalWebtoonWatchTimeMinutes;
+        totalMovieWatchTime = totalMovieWatchTimeMinutes;
+    } else if (timeUnit === "hours") {
+        totalAnimeWatchTime = (totalAnimeWatchTimeMinutes / 60).toFixed(2);
+        totalWebtoonWatchTime = (totalWebtoonWatchTimeMinutes / 60).toFixed(2);
+        totalMovieWatchTime = (totalMovieWatchTimeMinutes / 60).toFixed(2);
+    } else if (timeUnit === "days") {
+        totalAnimeWatchTime = (totalAnimeWatchTimeMinutes / 1440).toFixed(2); // 1440 minutes in a day  
+        totalWebtoonWatchTime = (totalWebtoonWatchTimeMinutes / 1440).toFixed(2);
+        totalMovieWatchTime = (totalMovieWatchTimeMinutes / 1440).toFixed(2);
+    }
+
+    // Mise à jour des éléments HTML avec les nouvelles statistiques  
     document.getElementById('countSeries').textContent = countSeries;
+    document.getElementById('totalAnimeEpisodes').textContent = totalAnimeEpisodes;
+    document.getElementById('totalAnimeWatchTime').textContent = totalAnimeWatchTime + " " + timeUnit;
+
+    document.getElementById('countWebtoons').textContent = countWebtoons;
+    document.getElementById('totalWebtoonEpisodes').textContent = totalWebtoonEpisodes;
+    document.getElementById('totalWebtoonWatchTime').textContent = totalWebtoonWatchTime + " " + timeUnit;
+
     document.getElementById('countFilms').textContent = countFilms;
-    document.getElementById('totalEpisodes').textContent = totalEpisodes;
-    document.getElementById('totalWatchTimeMinutes').textContent = totalWatchTimeMinutes; // Affichage des minutes  
-    document.getElementById('totalWatchTimeHours').textContent = totalWatchTimeHours; // Affichage des heures  
-    document.getElementById('totalWatchTimeDays').textContent = totalWatchTimeDays; // Affichage des jours
-
-    // Calcul des moyennes  
-    const totalRatings = {
-        graphics: 0,
-        characters: 0,
-        story: 0,
-        emotion: 0,
-        general: 0  
-    };
-
-    animeList.forEach(anime => {
-        totalRatings.graphics += parseFloat(anime.ratings.graphics) || 0; // Assurer que ce soit un nombre  
-        totalRatings.characters += parseFloat(anime.ratings.characters) || 0; // Assurer que ce soit un nombre  
-        totalRatings.story += parseFloat(anime.ratings.story) || 0; // Assurer que ce soit un nombre  
-        totalRatings.emotion += parseFloat(anime.ratings.emotion) || 0; // Assurer que ce soit un nombre  
-        totalRatings.general += parseFloat(anime.ratings.general) || 0; // Assurer que ce soit un nombre  
-    });
-
-    const animeCount = animeList.length;
-
-    // Calculer les moyennes en évitant la division par zéro  
-    const averageGraphics = animeCount > 0 ? (totalRatings.graphics / animeCount).toFixed(2) : 0;
-    const averageCharacters = animeCount > 0 ? (totalRatings.characters / animeCount).toFixed(2) : 0;
-    const averageStory = animeCount > 0 ? (totalRatings.story / animeCount).toFixed(2) : 0;
-    const averageEmotion = animeCount > 0 ? (totalRatings.emotion / animeCount).toFixed(2) : 0;
-    const averageGeneral = animeCount > 0 ? (totalRatings.general / animeCount).toFixed(2) : 0;
-
-    // Mise à jour de l'affichage des moyennes  
-    document.getElementById('averageGraphics').textContent = averageGraphics; // Affichage de la moyenne des graphismes  
-    document.getElementById('averageCharacters').textContent = averageCharacters; // Affichage de la moyenne des personnages  
-    document.getElementById('averageStory').textContent = averageStory; // Affichage de la moyenne de l'histoire  
-    document.getElementById('averageEmotion').textContent = averageEmotion; // Affichage de la moyenne de l'émotion  
-    document.getElementById('averageGeneral').textContent = averageGeneral; // Affichage de la moyenne générale  
+    document.getElementById('totalMovieWatchTime').textContent = totalMovieWatchTime + " " + timeUnit;
 }
 
 // Fonction de tri par critère  
@@ -630,6 +627,15 @@ function filterType(type) {
     );
 
     renderFilteredAnimeList(currentFilteredList);
+}
+
+function toggleMenu() {
+    const menuModal = document.getElementById('menuModal');
+    if (menuModal.style.display === 'none' || menuModal.style.display === '') {
+        menuModal.style.display = 'flex'; // Ouvrir le menu  
+    } else {
+        menuModal.style.display = 'none'; // Fermer le menu  
+    }
 }
 
 // Initialiser le chargement des anime au démarrage  
